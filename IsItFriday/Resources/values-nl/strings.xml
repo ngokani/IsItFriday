@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">Is het vrijdag</string>
+  <string name="yes">Ja</string>
+  <string name="no">Nee</string>
+  <string name="itsFriday">Woohoo! Het is vrijdag!</string>
+  <string name="itsNotFriday">Nog steeds geen vrijdag ...</string>
+</resources>

@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Is It Friday</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="itsFriday">Woohoo! It\'s Friday!</string>
+    <string name="itsNotFriday">Still not Friday...</string>
 </resources>

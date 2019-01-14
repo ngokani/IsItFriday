@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 xliff-core-1.2-transitional.xsd">
+  <file datatype="xml" source-language="en-US" target-language="el" original="ISITFRIDAY/RESOURCES/VALUES/COLORS.XML" tool-id="MultilingualAppToolkit" product-name="n/a" product-version="n/a" build-num="n/a">
+    <header>
+      <tool tool-id="MultilingualAppToolkit" tool-name="Multilingual App Toolkit" tool-version="4.0.6900.0" tool-company="Microsoft" />
+    </header>
+    <body>
+      <group id="ISITFRIDAY/RESOURCES/VALUES/COLORS.XML" datatype="resx" />
+    </body>
+  </file>
+  <file datatype="xml" source-language="en-US" target-language="el" original="ISITFRIDAY/RESOURCES/VALUES/STYLES.XML" tool-id="MultilingualAppToolkit" product-name="n/a" product-version="n/a" build-num="n/a">
+    <header>
+      <tool tool-id="MultilingualAppToolkit" tool-name="Multilingual App Toolkit" tool-version="4.0.6900.0" tool-company="Microsoft" />
+    </header>
+    <body>
+      <group id="ISITFRIDAY/RESOURCES/VALUES/STYLES.XML" datatype="resx" />
+    </body>
+  </file>
+  <file datatype="xml" source-language="en-US" target-language="el" original="ISITFRIDAY/RESOURCES/VALUES/IC_LAUNCHER_BACKGROUND.XML" tool-id="MultilingualAppToolkit" product-name="n/a" product-version="n/a" build-num="n/a">
+    <header>
+      <tool tool-id="MultilingualAppToolkit" tool-name="Multilingual App Toolkit" tool-version="4.0.6900.0" tool-company="Microsoft" />
+    </header>
+    <body>
+      <group id="ISITFRIDAY/RESOURCES/VALUES/IC_LAUNCHER_BACKGROUND.XML" datatype="resx" />
+    </body>
+  </file>
+  <file datatype="xml" source-language="en-US" target-language="el" original="ISITFRIDAY/RESOURCES/VALUES/DIMENS.XML" tool-id="MultilingualAppToolkit" product-name="n/a" product-version="n/a" build-num="n/a">
+    <header>
+      <tool tool-id="MultilingualAppToolkit" tool-name="Multilingual App Toolkit" tool-version="4.0.6900.0" tool-company="Microsoft" />
+    </header>
+    <body>
+      <group id="ISITFRIDAY/RESOURCES/VALUES/DIMENS.XML" datatype="resx" />
+    </body>
+  </file>
+  <file datatype="xml" source-language="en-US" target-language="el" original="ISITFRIDAY/RESOURCES/VALUES/STRINGS.XML" tool-id="MultilingualAppToolkit" product-name="n/a" product-version="n/a" build-num="n/a">
+    <header>
+      <tool tool-id="MultilingualAppToolkit" tool-name="Multilingual App Toolkit" tool-version="4.0.6900.0" tool-company="Microsoft" />
+    </header>
+    <body>
+      <group id="ISITFRIDAY/RESOURCES/VALUES/STRINGS.XML" datatype="resx">
+        <trans-unit id="app_name" translate="yes" xml:space="preserve">
+          <source>Is It Friday</source>
+          <target state="translated">Είναι Παρασκευή</target>
+        </trans-unit>
+        <trans-unit id="yes" translate="yes" xml:space="preserve">
+          <source>Yes</source>
+          <target state="needs-review-translation" state-qualifier="tm-suggestion">Ναι</target>
+        </trans-unit>
+        <trans-unit id="no" translate="yes" xml:space="preserve">
+          <source>No</source>
+          <target state="needs-review-translation" state-qualifier="tm-suggestion">Όχι</target>
+        </trans-unit>
+        <trans-unit id="itsFriday" translate="yes" xml:space="preserve">
+          <source>Woohoo! It\'s Friday!</source>
+          <target state="translated">Είναι Παρασκευή!</target>
+        </trans-unit>
+        <trans-unit id="itsNotFriday" translate="yes" xml:space="preserve">
+          <source>Still not Friday...</source>
+          <target state="translated">Ακόμη δεν την Παρασκευή ...</target>
+        </trans-unit>
+      </group>
+    </body>
+  </file>
+</xliff>
