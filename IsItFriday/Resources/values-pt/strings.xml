@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">É sexta-feira?</string>
+  <string name="yes">Sim</string>
+  <string name="no">Não</string>
+  <string name="itsFriday">Woohoo! É sexta feira!</string>
+  <string name="itsNotFriday">Ainda não é sexta-feira ...</string>
+</resources>

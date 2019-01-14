@@ -3228,6 +3228,12 @@ namespace IsItFriday
 			// aapt resource value: 0x7f090020
 			public const int character_counter_pattern = 2131296288;
 			
+			// aapt resource value: 0x7f09002a
+			public const int itsFriday = 2131296298;
+			
+			// aapt resource value: 0x7f09002b
+			public const int itsNotFriday = 2131296299;
+			
 			// aapt resource value: 0x7f090029
 			public const int no = 2131296297;
 			

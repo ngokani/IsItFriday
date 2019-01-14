@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">Je to pátek</string>
+  <string name="yes">Ano</string>
+  <string name="no">No</string>
+  <string name="itsFriday">Woohoo! Je pátek!</string>
+  <string name="itsNotFriday">Stále není pátek ...</string>
+</resources>
