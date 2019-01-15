@@ -135,6 +135,7 @@
     <XliffResource Include="MultilingualResources\IsItFriday.de.xlf" />
     <XliffResource Include="MultilingualResources\IsItFriday.el.xlf" />
     <XliffResource Include="MultilingualResources\IsItFriday.en.xlf" />
+    <XliffResource Include="MultilingualResources\IsItFriday.es.xlf" />
     <XliffResource Include="MultilingualResources\IsItFriday.fr.xlf" />
     <XliffResource Include="MultilingualResources\IsItFriday.ga.xlf" />
     <XliffResource Include="MultilingualResources\IsItFriday.gu.xlf" />
@@ -307,6 +308,24 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values-sv-rSE\styles.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\values-es\colors.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\values-es\dimens.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\values-es\ic_launcher_background.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\values-es\strings.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\values-es\styles.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\values-es-rES\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Multilingual App Toolkit\Microsoft.Multilingual.Xamarin.Android.targets" Label="MultilingualAppToolkit" Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\Multilingual App Toolkit\v$(MultilingualAppToolkitVersion)\Microsoft.Multilingual.Xamarin.Android.targets')" />
