@@ -50,11 +50,11 @@
           <source>No</source>
           <target state="translated" state-qualifier="tm-suggestion">No</target>
         </trans-unit>
-        <trans-unit id="itsFriday" translate="yes" xml:space="preserve">
+        <trans-unit id="itsFridayToast" translate="yes" xml:space="preserve">
           <source>Woohoo! It\'s Friday!</source>
           <target state="translated">Woohoo! Je pátek!</target>
         </trans-unit>
-        <trans-unit id="itsNotFriday" translate="yes" xml:space="preserve">
+        <trans-unit id="itsNotFridayToast" translate="yes" xml:space="preserve">
           <source>Still not Friday...</source>
           <target state="translated">Stále není pátek ...</target>
         </trans-unit>

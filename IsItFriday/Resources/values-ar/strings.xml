@@ -3,6 +3,6 @@
   <string name="app_name">هل من الجمعة</string>
   <string name="yes">نعم</string>
   <string name="no">لا</string>
-  <string name="itsFriday">فوردعالم! إنه يوم الجمعة!</string>
-  <string name="itsNotFriday">ما زال ليس الجمعة ...</string>
+  <string name="itsFridayToast">فوردعالم! إنه يوم الجمعة!</string>
+  <string name="itsNotFridayToast">ما زال ليس الجمعة ...</string>
 </resources>

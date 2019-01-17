@@ -3,6 +3,6 @@
   <string name="app_name">Je to pátek</string>
   <string name="yes">Ano</string>
   <string name="no">No</string>
-  <string name="itsFriday">Woohoo! Je pátek!</string>
-  <string name="itsNotFriday">Stále není pátek ...</string>
+  <string name="itsFridayToast">Woohoo! Je pátek!</string>
+  <string name="itsNotFridayToast">Stále není pátek ...</string>
 </resources>

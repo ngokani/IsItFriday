@@ -3,6 +3,6 @@
   <string name="app_name">Är det fredag</string>
   <string name="yes">Ja</string>
   <string name="no">Nej</string>
-  <string name="itsFriday">Woohoo! Det är fredag!</string>
-  <string name="itsNotFriday">Fortfarande inte fredag ...</string>
+  <string name="itsFridayToast">Woohoo! Det är fredag!</string>
+  <string name="itsNotFridayToast">Fortfarande inte fredag ...</string>
 </resources>

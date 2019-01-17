@@ -49,8 +49,8 @@ namespace IsItFriday
             SetContentView(Resource.Layout.activity_main);
             _packageName = ApplicationContext.PackageName;
 
-            _itsFridayToastMessage = Resources.GetString(Resource.String.itsFriday);
-            _itsNotFridayToastMessage = Resources.GetString(Resource.String.itsNotFriday);
+            _itsFridayToastMessage = Resources.GetString(Resource.String.itsFridayToast);
+            _itsNotFridayToastMessage = Resources.GetString(Resource.String.itsNotFridayToast);
 
             _swipeRefreshLayout = FindViewById<SwipeRefreshLayout>(Resource.Id.SwipeRefreshLayout);
             _isItFridayTextView = FindViewById<TextView>(Resource.Id.IsItFridayTextView);

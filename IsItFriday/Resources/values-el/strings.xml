@@ -3,6 +3,6 @@
   <string name="app_name">Είναι Παρασκευή</string>
   <string name="yes">Ναι</string>
   <string name="no">Όχι</string>
-  <string name="itsFriday">Είναι Παρασκευή!</string>
-  <string name="itsNotFriday">Ακόμη δεν την Παρασκευή ...</string>
+  <string name="itsFridayToast">Είναι Παρασκευή!</string>
+  <string name="itsNotFridayToast">Ακόμη δεν την Παρασκευή ...</string>
 </resources>

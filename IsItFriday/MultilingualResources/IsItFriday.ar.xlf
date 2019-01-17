@@ -44,17 +44,17 @@
         </trans-unit>
         <trans-unit id="yes" translate="yes" xml:space="preserve">
           <source>Yes</source>
-          <target state="needs-review-translation" state-qualifier="tm-suggestion">نعم</target>
+          <target state="translated" state-qualifier="tm-suggestion">نعم</target>
         </trans-unit>
         <trans-unit id="no" translate="yes" xml:space="preserve">
           <source>No</source>
-          <target state="needs-review-translation" state-qualifier="tm-suggestion">لا</target>
+          <target state="translated" state-qualifier="tm-suggestion">لا</target>
         </trans-unit>
-        <trans-unit id="itsFriday" translate="yes" xml:space="preserve">
+        <trans-unit id="itsFridayToast" translate="yes" xml:space="preserve">
           <source>Woohoo! It\'s Friday!</source>
           <target state="translated">فوردعالم! إنه يوم الجمعة!</target>
         </trans-unit>
-        <trans-unit id="itsNotFriday" translate="yes" xml:space="preserve">
+        <trans-unit id="itsNotFridayToast" translate="yes" xml:space="preserve">
           <source>Still not Friday...</source>
           <target state="translated">ما زال ليس الجمعة ...</target>
         </trans-unit>
