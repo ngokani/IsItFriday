@@ -58,6 +58,14 @@
           <source>Still not Friday...</source>
           <target state="translated">ما زال ليس الجمعة ...</target>
         </trans-unit>
+        <trans-unit id="channelName" translate="yes" xml:space="preserve">
+          <source>Friday Notifications</source>
+          <target state="new">Friday Notifications</target>
+        </trans-unit>
+        <trans-unit id="channelDescription" translate="yes" xml:space="preserve">
+          <source>Friday Notification</source>
+          <target state="new">Friday Notification</target>
+        </trans-unit>
       </group>
     </body>
   </file>

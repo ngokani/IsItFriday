@@ -5,10 +5,12 @@ using Android.Graphics;
 using Android.Hardware;
 using Android.OS;
 using Android.Runtime;
+using Android.Support.V4.App;
 using Android.Support.V4.Widget;
 using Android.Support.V7.App;
 using Android.Views;
 using Android.Widget;
+using Java.Lang;
 
 namespace IsItFriday
 {
@@ -57,6 +59,8 @@ namespace IsItFriday
             ISharedPreferences settings = ApplicationContext.GetSharedPreferences(_packageName, FileCreationMode.Private);
             _inDarkMode = !settings.GetBoolean(nameof(_inDarkMode), true);
             ToggleDarkMode();
+
+            CreateNotificationChannel();
         }
 
         protected override void OnStart()
@@ -83,6 +87,17 @@ namespace IsItFriday
                 _fridayCountdownTimer = new FridayCountdownTimer(timeToFridayMs);
                 _fridayCountdownTimer.TimerEnded += CountdownTimer_TimerEnded;
                 _fridayCountdownTimer.Start();
+            }
+
+            if (DateTime.Today.DayOfWeek == DayOfWeek.Friday)
+            {
+                var newTimer = new FridayCountdownTimer(10000);
+                newTimer.TimerEnded += (s, e) =>
+                {
+                    CreateNotification();
+                };
+
+                newTimer.Start();
             }
 
             if (_accelerometer != null)
@@ -161,6 +176,52 @@ namespace IsItFriday
 
         private void CountdownTimer_TimerEnded(object sender, EventArgs e) => UpdateTextView();
 
+        private void CreateNotification()
+        {
+            string id = "kfVsfOSbJY0";
+            var resultIntent = new Intent(Intent.ActionView, Android.Net.Uri.Parse("vnd.youtube:" + id));
+
+            var stackBuilder = Android.Support.V4.App.TaskStackBuilder.Create(this);
+            stackBuilder.AddParentStack(Class.FromType(typeof(SecondActivity)));
+            stackBuilder.AddNextIntent(resultIntent);
+
+            var resultPendingIntent = stackBuilder.GetPendingIntent(0, (int)PendingIntentFlags.UpdateCurrent);
+            NotificationCompat.Builder notifcationBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
+            .SetSmallIcon(Resource.Drawable.ic_stat_iif)
+            .SetAutoCancel(true)
+            .SetContentIntent(resultPendingIntent)
+            .SetContentTitle("It's Friday Friday Friday....")
+            .SetContentText("Today is friday!")
+            .SetPriority(NotificationCompat.PriorityDefault);
+
+            var notificationManager = NotificationManagerCompat.From(this);
+            try
+            {
+                notificationManager.Notify(NOTIFICATION_ID, notifcationBuilder.Build());
+            }
+            catch (System.Exception e)
+            {
+                var t = e;
+            }
+        }
+
+        private static readonly int NOTIFICATION_ID = 7561;
+        private static readonly string CHANNEL_ID = "friday_notification";
+
+        private void CreateNotificationChannel()
+        {
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
+            {
+                string name = GetString(Resource.String.channelName);
+                string description = GetString(Resource.String.channelDescription);
+                NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, NotificationImportance.Default);
+                channel.Description = description;
+
+                NotificationManager notificationManager = (NotificationManager)GetSystemService(Activity.NotificationService);
+                notificationManager.CreateNotificationChannel(channel);
+            }
+        }
+
         #region ISensorEventListener2 Implementation
         public void OnSensorChanged(SensorEvent e)
         {
@@ -181,7 +242,7 @@ namespace IsItFriday
                 float y = e.Values[1];
                 float z = e.Values[2];
 
-                float speed = Math.Abs(x + y + z - _lastX - _lastY - _lastZ) / diffTime * 10000;
+                float speed = System.Math.Abs(x + y + z - _lastX - _lastY - _lastZ) / diffTime * 10000;
 
                 if (speed > FORCE_THRESHOLD)
                 {
@@ -208,6 +269,19 @@ namespace IsItFriday
 
         public void OnAccuracyChanged(Sensor sensor, [GeneratedEnum] SensorStatus accuracy) { }
         #endregion ISensorEventListener2 Implementation
+
+        [Activity(Label = "Second activity")]
+        private class SecondActivity : Activity
+        {
+            protected override void OnCreate(Bundle savedInstanceState)
+            {
+                base.OnCreate(savedInstanceState);
+
+                SetContentView(Resource.Layout.activity_main);
+                var textView = FindViewById<TextView>(Resource.Id.IsItFridayTextView);
+                textView.Text = "Second activity";
+            }
+        }
     }
 }
 
