@@ -32,13 +32,13 @@ namespace IsItFriday
         private int _shakeCount = 0;
         #endregion ISensorEventListener2 global variables
 
-        private bool _isThursday;
+        private bool _isThursdayOrFriday;
         private bool _inDarkMode;
         private string _packageName;
         private string _itsFridayToastMessage;
         private string _itsNotFridayToastMessage;
 
-        private FridayCountdownTimer _fridayCountdownTimer;
+        private NextDayCountdownTimer _nextDayCountdownTimer;
         private TextView _isItFridayTextView;
         private SensorManager _sensorManager;
         private Sensor _accelerometer;
@@ -80,18 +80,18 @@ namespace IsItFriday
 
             _swipeRefreshLayout.Refresh += RefreshLayout_OnRefresh;
 
-            _isThursday = DateTime.Today.DayOfWeek == DayOfWeek.Thursday;
-            if (_isThursday && _fridayCountdownTimer == null)
+            _isThursdayOrFriday = DateTime.Today.DayOfWeek == DayOfWeek.Thursday || DateTime.Today.DayOfWeek == DayOfWeek.Friday;
+            if (_isThursdayOrFriday && _nextDayCountdownTimer == null)
             {
-                long timeToFridayMs = (long)(DateTime.Today.AddDays(1) - DateTime.Now).TotalMilliseconds;
-                _fridayCountdownTimer = new FridayCountdownTimer(timeToFridayMs);
-                _fridayCountdownTimer.TimerEnded += CountdownTimer_TimerEnded;
-                _fridayCountdownTimer.Start();
+                long timeToTomorrow = (long)(DateTime.Today.AddDays(1) - DateTime.Now).TotalMilliseconds;
+                _nextDayCountdownTimer = new NextDayCountdownTimer(timeToTomorrow);
+                _nextDayCountdownTimer.TimerEnded += CountdownTimer_TimerEnded;
+                _nextDayCountdownTimer.Start();
             }
 
             if (DateTime.Today.DayOfWeek == DayOfWeek.Friday)
             {
-                var newTimer = new FridayCountdownTimer(10000);
+                NextDayCountdownTimer newTimer = new NextDayCountdownTimer(10000);
                 newTimer.TimerEnded += (s, e) =>
                 {
                     CreateNotification();
@@ -108,10 +108,10 @@ namespace IsItFriday
 
         protected override void OnPause()
         {
-            if (_isThursday)
+            if (_isThursdayOrFriday)
             {
-                _fridayCountdownTimer?.Cancel();
-                _fridayCountdownTimer = null;
+                _nextDayCountdownTimer?.Cancel();
+                _nextDayCountdownTimer = null;
             }
 
             _sensorManager?.UnregisterListener(this);
@@ -181,27 +181,22 @@ namespace IsItFriday
             string id = "kfVsfOSbJY0";
             var resultIntent = new Intent(Intent.ActionView, Android.Net.Uri.Parse("vnd.youtube:" + id));
 
-            var stackBuilder = Android.Support.V4.App.TaskStackBuilder.Create(this);
-            stackBuilder.AddParentStack(Class.FromType(typeof(SecondActivity)));
-            stackBuilder.AddNextIntent(resultIntent);
-
-            var resultPendingIntent = stackBuilder.GetPendingIntent(0, (int)PendingIntentFlags.UpdateCurrent);
+            PendingIntent pendingIntent = PendingIntent.GetActivity(this, NOTIFICATION_ID, resultIntent, PendingIntentFlags.UpdateCurrent);
             NotificationCompat.Builder notifcationBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
-            .SetSmallIcon(Resource.Drawable.ic_stat_iif)
-            .SetAutoCancel(true)
-            .SetContentIntent(resultPendingIntent)
-            .SetContentTitle("It's Friday Friday Friday....")
-            .SetContentText("Today is friday!")
-            .SetPriority(NotificationCompat.PriorityDefault);
+                .SetSmallIcon(Resource.Drawable.ic_stat_iif)
+                .SetAutoCancel(true)
+                .SetContentIntent(pendingIntent)
+                .SetContentTitle("It's Friday Friday Friday....")
+                .SetContentText("Today is Friday! Tap here for a treat")
+                .SetPriority(NotificationCompat.PriorityDefault);
 
             var notificationManager = NotificationManagerCompat.From(this);
             try
             {
                 notificationManager.Notify(NOTIFICATION_ID, notifcationBuilder.Build());
             }
-            catch (System.Exception e)
+            finally
             {
-                var t = e;
             }
         }
 
@@ -269,19 +264,6 @@ namespace IsItFriday
 
         public void OnAccuracyChanged(Sensor sensor, [GeneratedEnum] SensorStatus accuracy) { }
         #endregion ISensorEventListener2 Implementation
-
-        [Activity(Label = "Second activity")]
-        private class SecondActivity : Activity
-        {
-            protected override void OnCreate(Bundle savedInstanceState)
-            {
-                base.OnCreate(savedInstanceState);
-
-                SetContentView(Resource.Layout.activity_main);
-                var textView = FindViewById<TextView>(Resource.Id.IsItFridayTextView);
-                textView.Text = "Second activity";
-            }
-        }
     }
 }
 
