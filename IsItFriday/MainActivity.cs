@@ -5,10 +5,12 @@ using Android.Graphics;
 using Android.Hardware;
 using Android.OS;
 using Android.Runtime;
+using Android.Support.V4.App;
 using Android.Support.V4.Widget;
 using Android.Support.V7.App;
 using Android.Views;
 using Android.Widget;
+using Java.Lang;
 
 namespace IsItFriday
 {
@@ -30,13 +32,13 @@ namespace IsItFriday
         private int _shakeCount = 0;
         #endregion ISensorEventListener2 global variables
 
-        private bool _isThursday;
+        private bool _isThursdayOrFriday;
         private bool _inDarkMode;
         private string _packageName;
         private string _itsFridayToastMessage;
         private string _itsNotFridayToastMessage;
 
-        private FridayCountdownTimer _fridayCountdownTimer;
+        private NextDayCountdownTimer _nextDayCountdownTimer;
         private TextView _isItFridayTextView;
         private SensorManager _sensorManager;
         private Sensor _accelerometer;
@@ -57,6 +59,8 @@ namespace IsItFriday
             ISharedPreferences settings = ApplicationContext.GetSharedPreferences(_packageName, FileCreationMode.Private);
             _inDarkMode = !settings.GetBoolean(nameof(_inDarkMode), true);
             ToggleDarkMode();
+
+            CreateNotificationChannel();
         }
 
         protected override void OnStart()
@@ -76,13 +80,24 @@ namespace IsItFriday
 
             _swipeRefreshLayout.Refresh += RefreshLayout_OnRefresh;
 
-            _isThursday = DateTime.Today.DayOfWeek == DayOfWeek.Thursday;
-            if (_isThursday && _fridayCountdownTimer == null)
+            _isThursdayOrFriday = DateTime.Today.DayOfWeek == DayOfWeek.Thursday || DateTime.Today.DayOfWeek == DayOfWeek.Friday;
+            if (_isThursdayOrFriday && _nextDayCountdownTimer == null)
             {
-                long timeToFridayMs = (long)(DateTime.Today.AddDays(1) - DateTime.Now).TotalMilliseconds;
-                _fridayCountdownTimer = new FridayCountdownTimer(timeToFridayMs);
-                _fridayCountdownTimer.TimerEnded += CountdownTimer_TimerEnded;
-                _fridayCountdownTimer.Start();
+                long timeToTomorrow = (long)(DateTime.Today.AddDays(1) - DateTime.Now).TotalMilliseconds;
+                _nextDayCountdownTimer = new NextDayCountdownTimer(timeToTomorrow);
+                _nextDayCountdownTimer.TimerEnded += CountdownTimer_TimerEnded;
+                _nextDayCountdownTimer.Start();
+            }
+
+            if (DateTime.Today.DayOfWeek == DayOfWeek.Friday)
+            {
+                NextDayCountdownTimer newTimer = new NextDayCountdownTimer(10000);
+                newTimer.TimerEnded += (s, e) =>
+                {
+                    CreateNotification();
+                };
+
+                newTimer.Start();
             }
 
             if (_accelerometer != null)
@@ -93,10 +108,10 @@ namespace IsItFriday
 
         protected override void OnPause()
         {
-            if (_isThursday)
+            if (_isThursdayOrFriday)
             {
-                _fridayCountdownTimer?.Cancel();
-                _fridayCountdownTimer = null;
+                _nextDayCountdownTimer?.Cancel();
+                _nextDayCountdownTimer = null;
             }
 
             _sensorManager?.UnregisterListener(this);
@@ -161,6 +176,47 @@ namespace IsItFriday
 
         private void CountdownTimer_TimerEnded(object sender, EventArgs e) => UpdateTextView();
 
+        private void CreateNotification()
+        {
+            string id = "kfVsfOSbJY0";
+            var resultIntent = new Intent(Intent.ActionView, Android.Net.Uri.Parse("vnd.youtube:" + id));
+
+            PendingIntent pendingIntent = PendingIntent.GetActivity(this, NOTIFICATION_ID, resultIntent, PendingIntentFlags.UpdateCurrent);
+            NotificationCompat.Builder notifcationBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .SetSmallIcon(Resource.Drawable.ic_stat_iif)
+                .SetAutoCancel(true)
+                .SetContentIntent(pendingIntent)
+                .SetContentTitle("It's Friday Friday Friday....")
+                .SetContentText("Today is Friday! Tap here for a treat")
+                .SetPriority(NotificationCompat.PriorityDefault);
+
+            var notificationManager = NotificationManagerCompat.From(this);
+            try
+            {
+                notificationManager.Notify(NOTIFICATION_ID, notifcationBuilder.Build());
+            }
+            finally
+            {
+            }
+        }
+
+        private static readonly int NOTIFICATION_ID = 7561;
+        private static readonly string CHANNEL_ID = "friday_notification";
+
+        private void CreateNotificationChannel()
+        {
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
+            {
+                string name = GetString(Resource.String.channelName);
+                string description = GetString(Resource.String.channelDescription);
+                NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, NotificationImportance.Default);
+                channel.Description = description;
+
+                NotificationManager notificationManager = (NotificationManager)GetSystemService(Activity.NotificationService);
+                notificationManager.CreateNotificationChannel(channel);
+            }
+        }
+
         #region ISensorEventListener2 Implementation
         public void OnSensorChanged(SensorEvent e)
         {
@@ -181,7 +237,7 @@ namespace IsItFriday
                 float y = e.Values[1];
                 float z = e.Values[2];
 
-                float speed = Math.Abs(x + y + z - _lastX - _lastY - _lastZ) / diffTime * 10000;
+                float speed = System.Math.Abs(x + y + z - _lastX - _lastY - _lastZ) / diffTime * 10000;
 
                 if (speed > FORCE_THRESHOLD)
                 {

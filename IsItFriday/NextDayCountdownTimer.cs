@@ -3,11 +3,11 @@ using System;
 
 namespace IsItFriday
 {
-    public class FridayCountdownTimer : CountDownTimer
+    public class NextDayCountdownTimer : CountDownTimer
     {
         public event EventHandler TimerEnded;
 
-        public FridayCountdownTimer(long millisInFuture)
+        public NextDayCountdownTimer(long millisInFuture)
             : base(millisInFuture, countDownInterval: millisInFuture) // We don't care about the intervals
         {
         }
