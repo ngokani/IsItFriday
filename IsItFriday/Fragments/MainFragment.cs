@@ -24,7 +24,6 @@ namespace IsItFriday.Fragments
 
         private TextView _isItFridayTextView;
         private SwipeRefreshLayout _swipeRefreshLayout;
-        private Toast _currentToast;
 
         public new MainActivity Activity => base.Activity as MainActivity;
 
@@ -51,22 +50,35 @@ namespace IsItFriday.Fragments
             SetColorMode(Activity.InDarkMode);
 
             _swipeRefreshLayout.Refresh += RefreshLayout_OnRefresh;
+            View.Touch += Parent_Touch;
             if (Activity != null)
             {
                 Activity.InDarkModeChanged += Activity_InDarkModeChanged;
-                Activity.IsThursdayOrFridayChanged += Activity_IsThursdayOrFridayChanged;
+                Activity.MidnightTimerEnded += Activity_MidnightTimerEnded;
+            }
+        }
+
+        private void Parent_Touch(object sender, View.TouchEventArgs e)
+        {
+            switch(e.Event.Action)
+            {
+                case MotionEventActions.Down:
+                    Activity.CreateAndShowToast("Down down down", ToastLength.Short);
+                    break;
+                case MotionEventActions.Up:
+                    Activity.CreateAndShowToast("Up up up", ToastLength.Short);
+                    e.Handled = false;
+                    break;
             }
         }
 
         public override void OnPause()
         {
-            _currentToast?.Cancel();
             _swipeRefreshLayout.Refresh -= RefreshLayout_OnRefresh;
-
             if (Activity != null)
             {
                 Activity.InDarkModeChanged -= Activity_InDarkModeChanged;
-                Activity.IsThursdayOrFridayChanged -= Activity_IsThursdayOrFridayChanged;
+                Activity.MidnightTimerEnded -= Activity_MidnightTimerEnded;
             }
             base.OnPause();
         }
@@ -79,9 +91,9 @@ namespace IsItFriday.Fragments
                 ? _itsFridayToastMessage
                 : _itsNotFridayToastMessage;
 
-            _currentToast?.Cancel();
-            _currentToast = Toast.MakeText(Context, message, ToastLength.Long);
-            _currentToast.Show();
+            UpdateTextView();
+            
+            Activity.CreateAndShowToast(message, ToastLength.Long);
         }
 
         private void UpdateTextView()
@@ -112,7 +124,7 @@ namespace IsItFriday.Fragments
             }
         }
 
-        private void Activity_IsThursdayOrFridayChanged(object sender, bool e)
+        private void Activity_MidnightTimerEnded(object sender, EventArgs e)
         {
             UpdateTextView();
         }

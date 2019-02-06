@@ -35,27 +35,14 @@ namespace IsItFriday
         private static readonly int NOTIFICATION_ID = 7561;
         private static readonly string NOTIFICATION_CHANNEL_ID = "friday_notification";
 
-        private MidnightTimer _nextDayCountdownTimer;
+        private MidnightTimer _midnightTimer;
         private SensorManager _sensorManager;
         private Sensor _accelerometer;
 
         public event EventHandler MidnightTimerEnded;
         public event EventHandler<bool> InDarkModeChanged;
-        public event EventHandler<bool> IsThursdayOrFridayChanged;
 
-        private bool _isThursdayOrFriday;
-        public bool IsThursdayOrFriday
-        {
-            get => _isThursdayOrFriday;
-            private set
-            {
-                if (_isThursdayOrFriday != value)
-                {
-                    _isThursdayOrFriday = value;
-                    IsThursdayOrFridayChanged?.Invoke(this, _isThursdayOrFriday);
-                }
-            }
-        }
+        public bool IsThursdayOrFriday => DateTime.Today.DayOfWeek == DayOfWeek.Thursday || DateTime.Today.DayOfWeek == DayOfWeek.Friday;
 
         private bool _inDarkMode;
         public bool InDarkMode
@@ -70,6 +57,8 @@ namespace IsItFriday
                 }
             }
         }
+
+        public Toast CurrentToast { get; private set; }
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -102,15 +91,7 @@ namespace IsItFriday
         protected override void OnResume()
         {
             base.OnResume();
-
-            IsThursdayOrFriday = DateTime.Today.DayOfWeek == DayOfWeek.Thursday || DateTime.Today.DayOfWeek == DayOfWeek.Friday;
-            if (IsThursdayOrFriday && _nextDayCountdownTimer == null)
-            {
-                long timeToTomorrow = (long)(DateTime.Today.AddDays(1) - DateTime.Now).TotalMilliseconds;
-                _nextDayCountdownTimer = new MidnightTimer(timeToTomorrow);
-                _nextDayCountdownTimer.TimerEnded += CountdownTimer_TimerEnded;
-                _nextDayCountdownTimer.Start();
-            }
+            CreateMidnightTimerIfNeeded();
 
             if (DateTime.Today.DayOfWeek == DayOfWeek.Friday)
             {
@@ -137,11 +118,11 @@ namespace IsItFriday
             _sensorManager = null;
             _accelerometer = null;
 
-            if (IsThursdayOrFriday)
-            {
-                _nextDayCountdownTimer?.Cancel();
-                _nextDayCountdownTimer = null;
-            }
+            CurrentToast?.Cancel();
+            CurrentToast = null;
+
+            _midnightTimer?.Cancel();
+            _midnightTimer = null;
 
             SupportFragmentManager.BackStackChanged -= SupportFragmentManager_BackStackChanged;
             base.OnPause();
@@ -153,17 +134,17 @@ namespace IsItFriday
             ISharedPreferencesEditor editor = settings.Edit();
             editor.PutBoolean(nameof(InDarkMode), InDarkMode);
             editor.Apply();
+
             base.OnSaveInstanceState(outState);
         }
 
-        private void CountdownTimer_TimerEnded(object sender, EventArgs e)
+        public void CreateAndShowToast(string message, ToastLength toastLength)
         {
-            MidnightTimerEnded?.Invoke(sender, e);
-        }
+            Toast toast = Toast.MakeText(this, message, toastLength);
+            CurrentToast?.Cancel();
 
-        private void SupportFragmentManager_BackStackChanged(object sender, EventArgs e)
-        {
-            Toast.MakeText(this, "PANIC! Something changed on the backstack!!", ToastLength.Short).Show();
+            CurrentToast = toast;
+            toast.Show();
         }
 
         private void CreateNotification()
@@ -206,6 +187,37 @@ namespace IsItFriday
         }
 
         private void ToggleDarkMode() => InDarkMode = !InDarkMode;
+
+        /// <summary>
+        /// If it's Thursday or Friday, we need to notify ourselves when we get to midnight
+        /// </summary>
+        private void CreateMidnightTimerIfNeeded()
+        {
+            if (IsThursdayOrFriday && _midnightTimer == null)
+            {
+                long timeToTomorrow = (long)(DateTime.Today.AddDays(1) - DateTime.Now).TotalMilliseconds;
+                _midnightTimer = new MidnightTimer(timeToTomorrow);
+                _midnightTimer.TimerEnded += CountdownTimer_TimerEnded;
+                _midnightTimer.Start();
+            }
+        }
+
+        private void CountdownTimer_TimerEnded(object sender, EventArgs e)
+        {
+            _midnightTimer.TimerEnded -= CountdownTimer_TimerEnded;
+            _midnightTimer = null;
+
+            // Timer may have ended, but today could be Friday.
+            // May need to start another timer.
+            CreateMidnightTimerIfNeeded();
+
+            MidnightTimerEnded?.Invoke(sender, e);
+        }
+
+        private void SupportFragmentManager_BackStackChanged(object sender, EventArgs e)
+        {
+            CreateAndShowToast("PANIC! Something changed on the backstack!!", ToastLength.Short);
+        }
 
         #region ISensorEventListener2 Implementation
         public void OnSensorChanged(SensorEvent e)
