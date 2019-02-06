@@ -1,21 +1,21 @@
 ﻿using System;
 using Android.App;
 using Android.Content;
-using Android.Graphics;
 using Android.Hardware;
 using Android.OS;
 using Android.Runtime;
 using Android.Support.V4.App;
 using Android.Support.V4.Widget;
-using Android.Support.V7.App;
 using Android.Views;
 using Android.Widget;
-using Java.Lang;
+using IsItFriday.Fragments;
+using IsItFriday.Tools;
+using FragmentTransaction = Android.Support.V4.App.FragmentTransaction;
 
 namespace IsItFriday
 {
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme.NoActionBar", MainLauncher = true)]
-    public class MainActivity : AppCompatActivity, ISensorEventListener2
+    public class MainActivity : FragmentActivity, ISensorEventListener2
     {
         #region ISensorEventListener2 global variables
         private const int FORCE_THRESHOLD = 3050;
@@ -32,34 +32,44 @@ namespace IsItFriday
         private int _shakeCount = 0;
         #endregion ISensorEventListener2 global variables
 
-        private bool _isThursdayOrFriday;
-        private bool _inDarkMode;
-        private string _packageName;
-        private string _itsFridayToastMessage;
-        private string _itsNotFridayToastMessage;
+        private static readonly int NOTIFICATION_ID = 7561;
+        private static readonly string NOTIFICATION_CHANNEL_ID = "friday_notification";
 
-        private NextDayCountdownTimer _nextDayCountdownTimer;
-        private TextView _isItFridayTextView;
+        private MidnightTimer _midnightTimer;
         private SensorManager _sensorManager;
         private Sensor _accelerometer;
-        private SwipeRefreshLayout _swipeRefreshLayout;
-        private Toast _currentToast;
+
+        public event EventHandler MidnightTimerEnded;
+        public event EventHandler<bool> InDarkModeChanged;
+
+        public bool IsThursdayOrFriday => DateTime.Today.DayOfWeek == DayOfWeek.Thursday || DateTime.Today.DayOfWeek == DayOfWeek.Friday;
+
+        private bool _inDarkMode;
+        public bool InDarkMode
+        {
+            get => _inDarkMode;
+            private set
+            {
+                if (_inDarkMode != value)
+                {
+                    _inDarkMode = value;
+                    InDarkModeChanged?.Invoke(this, _inDarkMode);
+                }
+            }
+        }
+
+        public Toast CurrentToast { get; private set; }
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            SetContentView(Resource.Layout.activity_main);
-            _packageName = ApplicationContext.PackageName;
+            SetContentView(Resource.Layout.MainActivity);
 
-            _itsFridayToastMessage = Resources.GetString(Resource.String.itsFridayToast);
-            _itsNotFridayToastMessage = Resources.GetString(Resource.String.itsNotFridayToast);
+            ISharedPreferences settings = ApplicationContext.GetSharedPreferences(PackageName, FileCreationMode.Private);
 
-            _swipeRefreshLayout = FindViewById<SwipeRefreshLayout>(Resource.Id.SwipeRefreshLayout);
-            _isItFridayTextView = FindViewById<TextView>(Resource.Id.IsItFridayTextView);
-            ISharedPreferences settings = ApplicationContext.GetSharedPreferences(_packageName, FileCreationMode.Private);
-            _inDarkMode = !settings.GetBoolean(nameof(_inDarkMode), true);
-            ToggleDarkMode();
-
+            // To be remove in the next version
+            InDarkMode = settings.GetBoolean("_inDarkMode", false);
+            InDarkMode = InDarkMode || settings.GetBoolean(nameof(InDarkMode), false);
             CreateNotificationChannel();
         }
 
@@ -71,27 +81,21 @@ namespace IsItFriday
             {
                 _accelerometer = _sensorManager.GetDefaultSensor(SensorType.Accelerometer);
             }
+
+            FragmentTransaction transaction = SupportFragmentManager.BeginTransaction();
+            transaction.Replace(Resource.Id.FragmentContainer, new MainFragment());
+            transaction.AddToBackStack(null);
+            transaction.Commit();
         }
 
         protected override void OnResume()
         {
             base.OnResume();
-            UpdateTextView();
-
-            _swipeRefreshLayout.Refresh += RefreshLayout_OnRefresh;
-
-            _isThursdayOrFriday = DateTime.Today.DayOfWeek == DayOfWeek.Thursday || DateTime.Today.DayOfWeek == DayOfWeek.Friday;
-            if (_isThursdayOrFriday && _nextDayCountdownTimer == null)
-            {
-                long timeToTomorrow = (long)(DateTime.Today.AddDays(1) - DateTime.Now).TotalMilliseconds;
-                _nextDayCountdownTimer = new NextDayCountdownTimer(timeToTomorrow);
-                _nextDayCountdownTimer.TimerEnded += CountdownTimer_TimerEnded;
-                _nextDayCountdownTimer.Start();
-            }
+            CreateMidnightTimerIfNeeded();
 
             if (DateTime.Today.DayOfWeek == DayOfWeek.Friday)
             {
-                NextDayCountdownTimer newTimer = new NextDayCountdownTimer(10000);
+                MidnightTimer newTimer = new MidnightTimer(10000);
                 newTimer.TimerEnded += (s, e) =>
                 {
                     CreateNotification();
@@ -104,77 +108,44 @@ namespace IsItFriday
             {
                 _sensorManager.RegisterListener(this, _accelerometer, SensorDelay.Game);
             }
+
+            SupportFragmentManager.BackStackChanged += SupportFragmentManager_BackStackChanged;
         }
 
         protected override void OnPause()
         {
-            if (_isThursdayOrFriday)
-            {
-                _nextDayCountdownTimer?.Cancel();
-                _nextDayCountdownTimer = null;
-            }
-
             _sensorManager?.UnregisterListener(this);
             _sensorManager = null;
             _accelerometer = null;
 
-            _currentToast?.Cancel();
+            CurrentToast?.Cancel();
+            CurrentToast = null;
 
-            _swipeRefreshLayout.Refresh -= RefreshLayout_OnRefresh;
+            _midnightTimer?.Cancel();
+            _midnightTimer = null;
+
+            SupportFragmentManager.BackStackChanged -= SupportFragmentManager_BackStackChanged;
             base.OnPause();
         }
 
         protected override void OnSaveInstanceState(Bundle outState)
         {
-            ISharedPreferences settings = ApplicationContext.GetSharedPreferences(_packageName, FileCreationMode.Private);
+            ISharedPreferences settings = ApplicationContext.GetSharedPreferences(PackageName, FileCreationMode.Private);
             ISharedPreferencesEditor editor = settings.Edit();
-            editor.PutBoolean(nameof(_inDarkMode), _inDarkMode);
+            editor.PutBoolean(nameof(InDarkMode), InDarkMode);
             editor.Apply();
+
             base.OnSaveInstanceState(outState);
         }
 
-        private void RefreshLayout_OnRefresh(object sender, EventArgs e)
+        public void CreateAndShowToast(string message, ToastLength toastLength)
         {
-            _swipeRefreshLayout.Refreshing = false;
+            Toast toast = Toast.MakeText(this, message, toastLength);
+            CurrentToast?.Cancel();
 
-            string message = DateTime.Today.DayOfWeek == DayOfWeek.Friday
-                ? _itsFridayToastMessage
-                : _itsNotFridayToastMessage;
-
-            _currentToast?.Cancel();
-            _currentToast = Toast.MakeText(this, message, ToastLength.Long);
-            _currentToast.Show();
+            CurrentToast = toast;
+            toast.Show();
         }
-
-        private void UpdateTextView()
-        {
-            if (DateTime.Today.DayOfWeek == DayOfWeek.Friday)
-            {
-                _isItFridayTextView.SetText(Resource.String.yes);
-            }
-            else
-            {
-                _isItFridayTextView.SetText(Resource.String.no);
-            }
-        }
-
-        private void ToggleDarkMode()
-        {
-            if (_inDarkMode)
-            {
-                _isItFridayTextView.SetTextColor(Color.White);
-                ((ViewGroup)_isItFridayTextView.Parent).SetBackgroundColor(Color.Black);
-                _inDarkMode = false;
-            }
-            else
-            {
-                _isItFridayTextView.SetTextColor(Color.Black);
-                ((ViewGroup)_isItFridayTextView.Parent).SetBackgroundColor(Color.White);
-                _inDarkMode = true;
-            }
-        }
-
-        private void CountdownTimer_TimerEnded(object sender, EventArgs e) => UpdateTextView();
 
         private void CreateNotification()
         {
@@ -182,7 +153,7 @@ namespace IsItFriday
             var resultIntent = new Intent(Intent.ActionView, Android.Net.Uri.Parse("vnd.youtube:" + id));
 
             PendingIntent pendingIntent = PendingIntent.GetActivity(this, NOTIFICATION_ID, resultIntent, PendingIntentFlags.UpdateCurrent);
-            NotificationCompat.Builder notifcationBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
+            NotificationCompat.Builder notifcationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
                 .SetSmallIcon(Resource.Drawable.ic_stat_iif)
                 .SetAutoCancel(true)
                 .SetContentIntent(pendingIntent)
@@ -197,11 +168,9 @@ namespace IsItFriday
             }
             finally
             {
+                // do nothing
             }
         }
-
-        private static readonly int NOTIFICATION_ID = 7561;
-        private static readonly string CHANNEL_ID = "friday_notification";
 
         private void CreateNotificationChannel()
         {
@@ -209,12 +178,45 @@ namespace IsItFriday
             {
                 string name = GetString(Resource.String.channelName);
                 string description = GetString(Resource.String.channelDescription);
-                NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, NotificationImportance.Default);
+                NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, name, NotificationImportance.Default);
                 channel.Description = description;
 
                 NotificationManager notificationManager = (NotificationManager)GetSystemService(Activity.NotificationService);
                 notificationManager.CreateNotificationChannel(channel);
             }
+        }
+
+        private void ToggleDarkMode() => InDarkMode = !InDarkMode;
+
+        /// <summary>
+        /// If it's Thursday or Friday, we need to notify ourselves when we get to midnight
+        /// </summary>
+        private void CreateMidnightTimerIfNeeded()
+        {
+            if (IsThursdayOrFriday && _midnightTimer == null)
+            {
+                long timeToTomorrow = (long)(DateTime.Today.AddDays(1) - DateTime.Now).TotalMilliseconds;
+                _midnightTimer = new MidnightTimer(timeToTomorrow);
+                _midnightTimer.TimerEnded += CountdownTimer_TimerEnded;
+                _midnightTimer.Start();
+            }
+        }
+
+        private void CountdownTimer_TimerEnded(object sender, EventArgs e)
+        {
+            _midnightTimer.TimerEnded -= CountdownTimer_TimerEnded;
+            _midnightTimer = null;
+
+            // Timer may have ended, but today could be Friday.
+            // May need to start another timer.
+            CreateMidnightTimerIfNeeded();
+
+            MidnightTimerEnded?.Invoke(sender, e);
+        }
+
+        private void SupportFragmentManager_BackStackChanged(object sender, EventArgs e)
+        {
+            CreateAndShowToast("PANIC! Something changed on the backstack!!", ToastLength.Short);
         }
 
         #region ISensorEventListener2 Implementation
@@ -230,7 +232,7 @@ namespace IsItFriday
             }
 
 
-            if ((now - _lastTime).TotalMilliseconds> TIME_THRESHOLD)
+            if ((now - _lastTime).TotalMilliseconds > TIME_THRESHOLD)
             {
                 float diffTime = (float)(now - _lastTime).TotalMilliseconds;
                 float x = e.Values[0];
