@@ -1,13 +1,13 @@
 ﻿using Android.OS;
 using System;
 
-namespace IsItFriday
+namespace IsItFriday.Tools
 {
-    public class NextDayCountdownTimer : CountDownTimer
+    public class MidnightTimer : CountDownTimer
     {
         public event EventHandler TimerEnded;
 
-        public NextDayCountdownTimer(long millisInFuture)
+        public MidnightTimer(long millisInFuture)
             : base(millisInFuture, countDownInterval: millisInFuture) // We don't care about the intervals
         {
         }
