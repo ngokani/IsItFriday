@@ -34,7 +34,5 @@ namespace IsItFriday.Fragments
 
             return _mainLayout;
         }
-
-
     }
 }

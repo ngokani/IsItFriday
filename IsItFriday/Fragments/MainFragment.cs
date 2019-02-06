@@ -49,26 +49,13 @@ namespace IsItFriday.Fragments
             UpdateTextView();
             SetColorMode(Activity.InDarkMode);
 
-            _swipeRefreshLayout.Refresh += RefreshLayout_OnRefresh;
-            View.Touch += Parent_Touch;
+            //_swipeRefreshLayout.Refresh += RefreshLayout_OnRefresh;
+            //_swipeRefreshLayout.Touch += SwipeRefreshLayout_Touch;
+
             if (Activity != null)
             {
                 Activity.InDarkModeChanged += Activity_InDarkModeChanged;
                 Activity.MidnightTimerEnded += Activity_MidnightTimerEnded;
-            }
-        }
-
-        private void Parent_Touch(object sender, View.TouchEventArgs e)
-        {
-            switch(e.Event.Action)
-            {
-                case MotionEventActions.Down:
-                    Activity.CreateAndShowToast("Down down down", ToastLength.Short);
-                    break;
-                case MotionEventActions.Up:
-                    Activity.CreateAndShowToast("Up up up", ToastLength.Short);
-                    e.Handled = false;
-                    break;
             }
         }
 
@@ -94,6 +81,15 @@ namespace IsItFriday.Fragments
             UpdateTextView();
             
             Activity.CreateAndShowToast(message, ToastLength.Long);
+        }
+
+        private void SwipeRefreshLayout_Touch(object sender, View.TouchEventArgs e)
+        {
+            if (e.Event.Action == MotionEventActions.Move)
+            {
+                e.Handled = true;
+            }
+            e.Handled = false;
         }
 
         private void UpdateTextView()
