@@ -14,6 +14,7 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using IsItFriday.Tools;
+using IsItFriday.Views;
 
 namespace IsItFriday.Fragments
 {
@@ -23,7 +24,7 @@ namespace IsItFriday.Fragments
         private string _itsNotFridayToastMessage;
 
         private TextView _isItFridayTextView;
-        private SwipeRefreshLayout _swipeRefreshLayout;
+        private CustomSwipeRefreshLayout _swipeRefreshLayout;
 
         public new MainActivity Activity => base.Activity as MainActivity;
 
@@ -38,8 +39,10 @@ namespace IsItFriday.Fragments
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             View view = inflater.Inflate(Resource.Layout.MainFragment, container, false);
-            _swipeRefreshLayout = view.FindViewById<SwipeRefreshLayout>(Resource.Id.SwipeRefreshLayout);
+            _swipeRefreshLayout = view.FindViewById<CustomSwipeRefreshLayout>(Resource.Id.SwipeRefreshLayout);
             _isItFridayTextView = view.FindViewById<TextView>(Resource.Id.IsItFridayTextView);
+
+            _swipeRefreshLayout.Enabled = false;
             return view;
         }
 
@@ -61,6 +64,7 @@ namespace IsItFriday.Fragments
 
         public override void OnPause()
         {
+            _swipeRefreshLayout.Touch -= SwipeRefreshLayout_Touch;
             _swipeRefreshLayout.Refresh -= RefreshLayout_OnRefresh;
             if (Activity != null)
             {
@@ -87,9 +91,12 @@ namespace IsItFriday.Fragments
         {
             if (e.Event.Action == MotionEventActions.Move)
             {
-                e.Handled = true;
+                _swipeRefreshLayout.Enabled = true;
             }
-            e.Handled = false;
+            else
+            {
+                _swipeRefreshLayout.Enabled = false;
+            }
         }
 
         private void UpdateTextView()
