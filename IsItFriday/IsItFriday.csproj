@@ -73,6 +73,7 @@
   <ItemGroup>
     <Compile Include="Fragments\MainFragment.cs" />
     <Compile Include="Fragments\VisualTimerFragment.cs" />
+    <Compile Include="Helpers\DisplayHelper.cs" />
     <Compile Include="Tools\MidnightTimer.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
