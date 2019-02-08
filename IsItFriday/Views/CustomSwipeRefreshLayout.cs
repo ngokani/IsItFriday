@@ -17,7 +17,7 @@ namespace IsItFriday.Views
     public class CustomSwipeRefreshLayout : SwipeRefreshLayout
     {
         private const int MOVEMENT_XY_THRESHOLD = 1;
-        private const double MOVEMENT_TIMEOUT_MS = 0;
+        private const double MOVEMENT_TIMEOUT_MS = 1500;
 
         public CustomSwipeRefreshLayout(Context context) 
             : base(context)
@@ -29,15 +29,21 @@ namespace IsItFriday.Views
         {
         }
 
-        private float _lastX = 0;
-        private float _lastY = 0;
+        private float _lastX = -1;
+        private float _lastY = -1;
         private double _lastMs = 0;
         public override bool OnInterceptTouchEvent(MotionEvent ev)
         {
-            if (DateTime.Today.TimeOfDay.TotalMilliseconds - _lastMs > MOVEMENT_TIMEOUT_MS)
+            double currentMs = DateTime.Today.TimeOfDay.TotalMilliseconds;
+            if (currentMs - _lastMs > MOVEMENT_TIMEOUT_MS)
             {
+                //Timed out
+                _lastX = -1;
+                _lastY = -1;
+                _lastMs = currentMs;
                 return false;
             }
+
             float currentX = ev.RawX;
             float currentY = ev.RawY;
             var t = DateTime.Today.TimeOfDay.TotalMilliseconds;
