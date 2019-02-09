@@ -42,7 +42,6 @@ namespace IsItFriday.Fragments
             _swipeRefreshLayout = view.FindViewById<CustomSwipeRefreshLayout>(Resource.Id.SwipeRefreshLayout);
             _isItFridayTextView = view.FindViewById<TextView>(Resource.Id.IsItFridayTextView);
 
-            _swipeRefreshLayout.Enabled = false;
             return view;
         }
 
@@ -52,7 +51,7 @@ namespace IsItFriday.Fragments
             UpdateTextView();
             SetColorMode(Activity.InDarkMode);
 
-            //_swipeRefreshLayout.Refresh += RefreshLayout_OnRefresh;
+            _swipeRefreshLayout.Refresh += RefreshLayout_OnRefresh;
             //_swipeRefreshLayout.Touch += SwipeRefreshLayout_Touch;
 
             if (Activity != null)

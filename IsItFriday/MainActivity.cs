@@ -239,7 +239,7 @@ namespace IsItFriday
 
         private void SupportFragmentManager_BackStackChanged(object sender, EventArgs e)
         {
-            CreateAndShowToast("PANIC! Something changed on the backstack!!", ToastLength.Short);
+            //CreateAndShowToast("PANIC! Something changed on the backstack!!", ToastLength.Short);
         }
 
         #region ISensorEventListener2 Implementation

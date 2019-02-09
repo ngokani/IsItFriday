@@ -16,8 +16,10 @@ namespace IsItFriday.Views
 {
     public class CustomSwipeRefreshLayout : SwipeRefreshLayout
     {
-        private const int MOVEMENT_XY_THRESHOLD = 1;
-        private const double MOVEMENT_TIMEOUT_MS = 1500;
+        private const int MOVEMENT_XY_THRESHOLD = 200;
+        private const double MOVEMENT_TIMEOUT_MS = 1000;
+        private float _lastY = -1;
+        private double _lastMs = 0;
 
         public CustomSwipeRefreshLayout(Context context) 
             : base(context)
@@ -29,33 +31,50 @@ namespace IsItFriday.Views
         {
         }
 
-        private float _lastX = -1;
-        private float _lastY = -1;
-        private double _lastMs = 0;
-        public override bool OnInterceptTouchEvent(MotionEvent ev)
+        public override bool OnTouchEvent(MotionEvent e)
         {
-            double currentMs = DateTime.Today.TimeOfDay.TotalMilliseconds;
-            if (currentMs - _lastMs > MOVEMENT_TIMEOUT_MS)
+            Log.Debug(nameof(CustomSwipeRefreshLayout), "on touch event");
+
+            double currentMs = DateTime.Now.TimeOfDay.TotalMilliseconds;
+            if (_lastMs == 0)
             {
-                //Timed out
-                _lastX = -1;
-                _lastY = -1;
                 _lastMs = currentMs;
+            }
+
+            bool timedOut = currentMs - _lastMs > MOVEMENT_TIMEOUT_MS;
+
+            Log.Debug(nameof(CustomSwipeRefreshLayout), "_lastY: " + _lastY + "\nRawY: " + e.RawY);
+            if (_lastY == -1)
+            {
+                _lastY = e.RawY;
+            }
+
+            float dY = Math.Abs(e.RawY - _lastY);
+            Log.Debug(nameof(CustomSwipeRefreshLayout), "DY: " + dY);
+
+            if (dY <= MOVEMENT_XY_THRESHOLD && timedOut)
+            {
+                Log.Debug(nameof(CustomSwipeRefreshLayout), "Show next activity");
+                Toast.MakeText(Context, "Show next activity", ToastLength.Short).Show();
+                Refreshing = false;
                 return false;
             }
-
-            float currentX = ev.RawX;
-            float currentY = ev.RawY;
-            var t = DateTime.Today.TimeOfDay.TotalMilliseconds;
-
-            if (ev.ActionMasked != MotionEventActions.Down)
-            {
-                return base.OnInterceptTouchEvent(ev);
-            }
+            //else if (timedOut)
+            //{
+            //    _lastY = -1;
+            //}
             else
             {
-                return false;
+                _lastY = e.RawY;
             }
+
+            {
+                _lastMs = currentMs;
+            }
+
+            Log.Debug(nameof(CustomSwipeRefreshLayout), "Swipe intercepted, resume refresh");
+
+            return base.OnTouchEvent(e);
         }
     }
 }
