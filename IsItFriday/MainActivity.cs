@@ -112,18 +112,7 @@ namespace IsItFriday
                 _sensorManager.RegisterListener(this, _accelerometer, SensorDelay.Game);
             }
 
-            SupportFragmentManager.BackStackChanged += SupportFragmentManager_BackStackChanged;
-            _rootView.InterceptedAction = InterceptedAction;
             _rootView.Touch += RootView_Touch;
-        }
-
-        private void InterceptedAction()
-        {
-            FragmentTransaction transaction = SupportFragmentManager.BeginTransaction();
-            transaction.Replace(Resource.Id.FragmentContainer, new VisualTimerFragment());
-            transaction.AddToBackStack(nameof(VisualTimerFragment));
-            transaction.Commit();
-            CreateAndShowToast("Down down down", ToastLength.Short);
         }
 
         private void RootView_Touch(object sender, View.TouchEventArgs e)
@@ -134,15 +123,15 @@ namespace IsItFriday
                 CreateAndShowToast("Up up up", ToastLength.Short);
                 e.Handled = false;
             }
-            //else 
-            //{
-            //    FragmentTransaction transaction = SupportFragmentManager.BeginTransaction();
-            //    transaction.Replace(Resource.Id.FragmentContainer, new VisualTimerFragment());
-            //    transaction.AddToBackStack(nameof(VisualTimerFragment));
-            //    transaction.Commit();
-            //    CreateAndShowToast("Down down down", ToastLength.Short);
-            //    e.Handled = true;
-            //}
+            else
+            {
+                FragmentTransaction transaction = SupportFragmentManager.BeginTransaction();
+                transaction.Replace(Resource.Id.FragmentContainer, new VisualTimerFragment());
+                transaction.AddToBackStack(nameof(VisualTimerFragment));
+                transaction.Commit();
+                CreateAndShowToast("Down down down", ToastLength.Short);
+                e.Handled = true;
+            }
         }
 
         protected override void OnPause()
@@ -157,7 +146,6 @@ namespace IsItFriday
             _midnightTimer?.Cancel();
             _midnightTimer = null;
 
-            SupportFragmentManager.BackStackChanged -= SupportFragmentManager_BackStackChanged;
             base.OnPause();
         }
 
@@ -245,11 +233,6 @@ namespace IsItFriday
             CreateMidnightTimerIfNeeded();
 
             MidnightTimerEnded?.Invoke(sender, e);
-        }
-
-        private void SupportFragmentManager_BackStackChanged(object sender, EventArgs e)
-        {
-            //CreateAndShowToast("PANIC! Something changed on the backstack!!", ToastLength.Short);
         }
 
         #region ISensorEventListener2 Implementation

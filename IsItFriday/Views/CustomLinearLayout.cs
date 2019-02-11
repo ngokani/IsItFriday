@@ -1,30 +1,28 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+using Android;
 using Android.App;
 using Android.Content;
+using Android.Content.PM;
 using Android.OS;
-using Android.Runtime;
-using Android.Support.V4.Widget;
+using Android.Support.V4.Content;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
-using IsItFriday.Tools;
-using static Android.Views.View;
+using Math = Java.Lang.Math;
 
 namespace IsItFriday.Views
 {
     public class CustomLinearLayout : LinearLayout
     {
-        private const int MOVEMENT_XY_THRESHOLD = 200;
         private const double MOVEMENT_TIMEOUT_MS = 1500;
-        private float _lastYPos = -1;
-        private double _lastMs = 0;
+        private const string TAG = nameof(CustomLinearLayout);
 
-        public Action InterceptedAction { get; set; }
+        private Vibrator _vibrator;
+        private WeakReference<Activity> _currentActivityWeakReference;
+        private double _deltaYThreshold;
+        private double _lastMs = -1;
+        private float _lastYPos = -1;
+        private bool _childHandlingEvent = false;
 
         public CustomLinearLayout(Context context) 
             : base(context)
@@ -36,94 +34,100 @@ namespace IsItFriday.Views
         {
         }
 
+        protected override void OnAttachedToWindow()
+        {
+            base.OnAttachedToWindow();
+
+            Activity currentActivity = null;
+            if (_currentActivityWeakReference?.TryGetTarget(out currentActivity) != true)
+            {
+                currentActivity = GetActivity();
+                _currentActivityWeakReference = new WeakReference<Activity>(currentActivity);
+            }
+
+            if (currentActivity != null)
+            {
+                DisplayMetrics displayMetrics = new DisplayMetrics();
+                currentActivity.WindowManager.DefaultDisplay.GetMetrics(displayMetrics);
+                _deltaYThreshold = displayMetrics.HeightPixels * 0.1;
+                _vibrator = currentActivity.GetSystemService(Context.VibratorService) as Vibrator;
+            }
+        }
+
         public override bool OnInterceptTouchEvent(MotionEvent ev)
         {
-            Log.Debug(nameof(CustomLinearLayout), "---------------BEGIN---------------\non touch event: " + ev.ActionMasked);
-
-            if (InterceptedAction == null)
-            {
-                Log.Debug(nameof(CustomLinearLayout), "----------------NULL ACTION----------------");
-                Log.Debug(nameof(CustomLinearLayout), "----------------END----------------");
-                return false;
-            }
-
             if (ev.ActionMasked == MotionEventActions.Up)
             {
-                _lastYPos = -1;
-                _lastMs = 0;
-
-                Log.Debug(nameof(CustomLinearLayout), "----------------END----------------");
-                if (InterceptedAction != null)
-                {
-                    RemoveCallbacks(InterceptedAction);
-                }
+                // Quick escape
+                _childHandlingEvent = false;
                 return false;
             }
 
-            Log.Debug(nameof(CustomLinearLayout), "_lastY: " + _lastYPos + "\nRawY: " + ev.RawY);
-
             double currentMs = DateTime.Now.TimeOfDay.TotalMilliseconds;
-            if (_lastMs == 0)
-            {
-                _lastMs = currentMs;
-            }
 
             if (ev.ActionMasked == MotionEventActions.Move)
             {
                 float dY = Math.Abs(ev.RawY - _lastYPos);
 
-                bool shouldNavigateToNextActivity = currentMs - _lastMs > MOVEMENT_TIMEOUT_MS;
-                bool withinThreshold = dY <= MOVEMENT_XY_THRESHOLD;
-                Log.Debug(nameof(CustomLinearLayout), $"dY: {dY}\nwithin threshold: {withinThreshold}");
+                bool withinThreshold = dY <= _deltaYThreshold;
+                bool movementTimedOut = currentMs - _lastMs > MOVEMENT_TIMEOUT_MS;
 
-                //Log.Debug(nameof(CustomLinearLayout), "Should navigate to next: " + shouldNavigateToNextActivity);
-
-                if (withinThreshold && shouldNavigateToNextActivity)
+                if (withinThreshold && movementTimedOut && !_childHandlingEvent)
                 {
-                    Log.Debug(nameof(CustomLinearLayout), "Show next activity");
-                    Log.Debug(nameof(CustomLinearLayout), "----------------END----------------");
-
                     _lastYPos = -1;
-                    _lastMs = 0;
-                    if (InterceptedAction != null)
-                    {
-                        PostDelayed(InterceptedAction, Convert.ToInt64(MOVEMENT_TIMEOUT_MS));
-                        return true;
-                    }
+                    _lastMs = -1;
+                    Vibrate();
+                    return true;
                 }
-                else /*if (!withinThreshold)*/
+                else if (!withinThreshold)
                 {
                     _lastMs = currentMs;
-
-                    Log.Debug(nameof(CustomLinearLayout), $"DY too large, reset {nameof(_lastMs)}");
+                    _lastYPos = ev.RawY;
+                    _childHandlingEvent = true;
                 }
-                //else
-                //{
-                //    Log.Debug(nameof(CustomLinearLayout), $"Resuming refresh. Should navigate: {shouldNavigateToNextActivity}");
-                //    Log.Debug(nameof(CustomLinearLayout), $"{nameof(withinThreshold)}: {withinThreshold} - {nameof(shouldNavigateToNextActivity)}: {shouldNavigateToNextActivity}");
-                //}
-                _lastYPos = ev.RawY;
             }
             else if (ev.ActionMasked == MotionEventActions.Down)
             {
                 _lastMs = currentMs;
                 _lastYPos = ev.RawY;
-
-                //if (InterceptedAction != null)
-                //{
-                //    PostDelayed(InterceptedAction, Convert.ToInt64(MOVEMENT_TIMEOUT_MS));
-                //    Log.Debug(nameof(CustomLinearLayout), "----------------END----------------");
-                //    return true;
-                //}
             }
 
-            if(InterceptedAction != null)
-            {
-                RemoveCallbacks(InterceptedAction);
-            }
-
-            Log.Debug(nameof(CustomLinearLayout), "----------------END----------------");
             return false;
+        }
+
+        private void Vibrate()
+        {
+            if (ContextCompat.CheckSelfPermission(Context, Manifest.Permission.Vibrate) != Permission.Granted)
+            {
+                return;
+            }
+
+            if (Android.OS.Build.VERSION.SdkInt >= BuildVersionCodes.O)
+            {
+                _vibrator?.Vibrate(VibrationEffect.CreateOneShot(200, VibrationEffect.DefaultAmplitude));
+            }
+            else
+            {
+#pragma warning disable CS0618 // Type or member is obsolete
+                _vibrator?.Vibrate(200);
+#pragma warning restore CS0618 // Type or member is obsolete
+            }
+        }
+
+        private Activity GetActivity()
+        {
+            Context context = Context;
+            while (context is ContextWrapper contextWrapper)
+            {
+                if(contextWrapper is Activity activity)
+                {
+                    return activity;
+                }
+
+                context = contextWrapper.BaseContext;
+            }
+
+            return null;
         }
     }
 }
