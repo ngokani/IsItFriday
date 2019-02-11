@@ -8,8 +8,6 @@ namespace IsItFriday.Fragments
 {
     public class VisualTimerFragment : Fragment
     {
-        public const string TAG = nameof(VisualTimerFragment) + "TAG";
-
         private RelativeLayout _mainLayout;
         private TextView _tickingTextView;
 
@@ -24,7 +22,6 @@ namespace IsItFriday.Fragments
             _tickingTextView.Gravity = GravityFlags.Center;
             _tickingTextView.Text = "hello world";
             _tickingTextView.SetTextColor(Color.Blue);
-            // Create your fragment here
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)

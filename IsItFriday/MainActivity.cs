@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Android;
 using Android.App;
 using Android.Content;
+using Android.Content.PM;
 using Android.Hardware;
 using Android.OS;
 using Android.Runtime;
 using Android.Support.V4.App;
+using Android.Support.V4.Content;
 using Android.Support.V4.Widget;
 using Android.Views;
 using Android.Widget;
@@ -37,6 +40,7 @@ namespace IsItFriday
         private static readonly int NOTIFICATION_ID = 7561;
         private static readonly string NOTIFICATION_CHANNEL_ID = "friday_notification";
 
+        private Vibrator _vibrator;
         private CustomLinearLayout _rootView;
         private MidnightTimer _midnightTimer;
         private SensorManager _sensorManager;
@@ -68,6 +72,8 @@ namespace IsItFriday
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.MainActivity);
             _rootView = FindViewById<CustomLinearLayout>(Resource.Id.RootView);
+            _vibrator = GetSystemService(Context.VibratorService) as Vibrator;
+
             ISharedPreferences settings = ApplicationContext.GetSharedPreferences(PackageName, FileCreationMode.Private);
 
             // To be remove in the next version
@@ -120,7 +126,6 @@ namespace IsItFriday
             if (e.Event.ActionMasked == MotionEventActions.Up)
             {
                 SupportFragmentManager.PopBackStack(nameof(VisualTimerFragment), Android.Support.V4.App.FragmentManager.PopBackStackInclusive);
-                CreateAndShowToast("Up up up", ToastLength.Short);
                 e.Handled = false;
             }
             else
@@ -129,7 +134,7 @@ namespace IsItFriday
                 transaction.Replace(Resource.Id.FragmentContainer, new VisualTimerFragment());
                 transaction.AddToBackStack(nameof(VisualTimerFragment));
                 transaction.Commit();
-                CreateAndShowToast("Down down down", ToastLength.Short);
+                Vibrate();
                 e.Handled = true;
             }
         }
@@ -208,6 +213,25 @@ namespace IsItFriday
         }
 
         private void ToggleDarkMode() => InDarkMode = !InDarkMode;
+
+        private void Vibrate()
+        {
+            if (ContextCompat.CheckSelfPermission(this, Manifest.Permission.Vibrate) != Permission.Granted)
+            {
+                return;
+            }
+
+            if (Android.OS.Build.VERSION.SdkInt >= BuildVersionCodes.O)
+            {
+                _vibrator?.Vibrate(VibrationEffect.CreateOneShot(200, VibrationEffect.DefaultAmplitude));
+            }
+            else
+            {
+#pragma warning disable CS0618 // Type or member is obsolete
+                _vibrator?.Vibrate(200);
+#pragma warning restore CS0618 // Type or member is obsolete
+            }
+        }
 
         /// <summary>
         /// If it's Thursday or Friday, we need to notify ourselves when we get to midnight
