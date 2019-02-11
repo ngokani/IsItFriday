@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.Hardware;
@@ -10,6 +11,7 @@ using Android.Views;
 using Android.Widget;
 using IsItFriday.Fragments;
 using IsItFriday.Tools;
+using IsItFriday.Views;
 using FragmentTransaction = Android.Support.V4.App.FragmentTransaction;
 
 namespace IsItFriday
@@ -35,7 +37,7 @@ namespace IsItFriday
         private static readonly int NOTIFICATION_ID = 7561;
         private static readonly string NOTIFICATION_CHANNEL_ID = "friday_notification";
 
-        private View _rootView;
+        private CustomLinearLayout _rootView;
         private MidnightTimer _midnightTimer;
         private SensorManager _sensorManager;
         private Sensor _accelerometer;
@@ -65,7 +67,7 @@ namespace IsItFriday
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.MainActivity);
-            _rootView = FindViewById(Resource.Id.RootView);
+            _rootView = FindViewById<CustomLinearLayout>(Resource.Id.RootView);
             ISharedPreferences settings = ApplicationContext.GetSharedPreferences(PackageName, FileCreationMode.Private);
 
             // To be remove in the next version
@@ -111,28 +113,36 @@ namespace IsItFriday
             }
 
             SupportFragmentManager.BackStackChanged += SupportFragmentManager_BackStackChanged;
-
+            _rootView.InterceptedAction = InterceptedAction;
             _rootView.Touch += RootView_Touch;
+        }
+
+        private void InterceptedAction()
+        {
+            FragmentTransaction transaction = SupportFragmentManager.BeginTransaction();
+            transaction.Replace(Resource.Id.FragmentContainer, new VisualTimerFragment());
+            transaction.AddToBackStack(nameof(VisualTimerFragment));
+            transaction.Commit();
+            CreateAndShowToast("Down down down", ToastLength.Short);
         }
 
         private void RootView_Touch(object sender, View.TouchEventArgs e)
         {
-            switch (e.Event.Action)
+            if (e.Event.ActionMasked == MotionEventActions.Up)
             {
-                case MotionEventActions.Down:
-                    FragmentTransaction transaction = SupportFragmentManager.BeginTransaction();
-                    transaction.Replace(Resource.Id.FragmentContainer, new VisualTimerFragment());
-                    transaction.AddToBackStack(nameof(VisualTimerFragment));
-                    transaction.Commit();
-                    CreateAndShowToast("Down down down", ToastLength.Short);
-                    e.Handled = true;
-                    break;
-                case MotionEventActions.Up:
-                    SupportFragmentManager.PopBackStack(nameof(VisualTimerFragment), Android.Support.V4.App.FragmentManager.PopBackStackInclusive);
-                    CreateAndShowToast("Up up up", ToastLength.Short);
-                    e.Handled = true;
-                    break;
+                SupportFragmentManager.PopBackStack(nameof(VisualTimerFragment), Android.Support.V4.App.FragmentManager.PopBackStackInclusive);
+                CreateAndShowToast("Up up up", ToastLength.Short);
+                e.Handled = false;
             }
+            //else 
+            //{
+            //    FragmentTransaction transaction = SupportFragmentManager.BeginTransaction();
+            //    transaction.Replace(Resource.Id.FragmentContainer, new VisualTimerFragment());
+            //    transaction.AddToBackStack(nameof(VisualTimerFragment));
+            //    transaction.Commit();
+            //    CreateAndShowToast("Down down down", ToastLength.Short);
+            //    e.Handled = true;
+            //}
         }
 
         protected override void OnPause()

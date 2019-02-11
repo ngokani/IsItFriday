@@ -24,7 +24,7 @@ namespace IsItFriday.Fragments
         private string _itsNotFridayToastMessage;
 
         private TextView _isItFridayTextView;
-        private CustomSwipeRefreshLayout _swipeRefreshLayout;
+        private SwipeRefreshLayout _swipeRefreshLayout;
 
         public new MainActivity Activity => base.Activity as MainActivity;
 
@@ -39,7 +39,7 @@ namespace IsItFriday.Fragments
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             View view = inflater.Inflate(Resource.Layout.MainFragment, container, false);
-            _swipeRefreshLayout = view.FindViewById<CustomSwipeRefreshLayout>(Resource.Id.SwipeRefreshLayout);
+            _swipeRefreshLayout = view.FindViewById<SwipeRefreshLayout>(Resource.Id.SwipeRefreshLayout);
             _isItFridayTextView = view.FindViewById<TextView>(Resource.Id.IsItFridayTextView);
 
             return view;
@@ -52,7 +52,6 @@ namespace IsItFriday.Fragments
             SetColorMode(Activity.InDarkMode);
 
             _swipeRefreshLayout.Refresh += RefreshLayout_OnRefresh;
-            //_swipeRefreshLayout.Touch += SwipeRefreshLayout_Touch;
 
             if (Activity != null)
             {
@@ -63,7 +62,6 @@ namespace IsItFriday.Fragments
 
         public override void OnPause()
         {
-            _swipeRefreshLayout.Touch -= SwipeRefreshLayout_Touch;
             _swipeRefreshLayout.Refresh -= RefreshLayout_OnRefresh;
             if (Activity != null)
             {
@@ -84,18 +82,6 @@ namespace IsItFriday.Fragments
             UpdateTextView();
             
             Activity.CreateAndShowToast(message, ToastLength.Long);
-        }
-
-        private void SwipeRefreshLayout_Touch(object sender, View.TouchEventArgs e)
-        {
-            if (e.Event.Action == MotionEventActions.Move)
-            {
-                _swipeRefreshLayout.Enabled = true;
-            }
-            else
-            {
-                _swipeRefreshLayout.Enabled = false;
-            }
         }
 
         private void UpdateTextView()
