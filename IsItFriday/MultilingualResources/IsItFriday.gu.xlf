@@ -66,6 +66,54 @@
           <source>Friday Notification</source>
           <target state="new">Friday Notification</target>
         </trans-unit>
+        <trans-unit id="hours" translate="yes" xml:space="preserve">
+          <source>Hours</source>
+          <target state="new">Hours</target>
+        </trans-unit>
+        <trans-unit id="hour" translate="yes" xml:space="preserve">
+          <source>Hour</source>
+          <target state="new">Hour</target>
+        </trans-unit>
+        <trans-unit id="day" translate="yes" xml:space="preserve">
+          <source>Day</source>
+          <target state="new">Day</target>
+        </trans-unit>
+        <trans-unit id="days" translate="yes" xml:space="preserve">
+          <source>Days</source>
+          <target state="new">Days</target>
+        </trans-unit>
+        <trans-unit id="minute" translate="yes" xml:space="preserve">
+          <source>Minute</source>
+          <target state="new">Minute</target>
+        </trans-unit>
+        <trans-unit id="minutes" translate="yes" xml:space="preserve">
+          <source>Minutes</source>
+          <target state="new">Minutes</target>
+        </trans-unit>
+        <trans-unit id="second" translate="yes" xml:space="preserve">
+          <source>Second</source>
+          <target state="new">Second</target>
+        </trans-unit>
+        <trans-unit id="seconds" translate="yes" xml:space="preserve">
+          <source>Seconds</source>
+          <target state="new">Seconds</target>
+        </trans-unit>
+        <trans-unit id="fridayNotificationTitle" translate="yes" xml:space="preserve">
+          <source>It\'s Friday Friday Friday....</source>
+          <target state="new">It\'s Friday Friday Friday....</target>
+        </trans-unit>
+        <trans-unit id="fridayNotificationContent" translate="yes" xml:space="preserve">
+          <source>Today is Friday! Tap here for a treat</source>
+          <target state="new">Today is Friday! Tap here for a treat</target>
+        </trans-unit>
+        <trans-unit id="untilFriday" translate="yes" xml:space="preserve">
+          <source>Until Friday</source>
+          <target state="new">Until Friday</target>
+        </trans-unit>
+        <trans-unit id="untilFridayEnds" translate="yes" xml:space="preserve">
+          <source>Until Friday Ends</source>
+          <target state="new">Until Friday Ends</target>
+        </trans-unit>
       </group>
     </body>
   </file>

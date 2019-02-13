@@ -1,24 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using Android.App;
-using Android.Content;
 using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
 
 namespace IsItFriday.Tools
 {
-    public class TextViewCountdownTimer : CountDownTimer
+    public class CountdownTimerImpl : CountDownTimer
     {
         public event EventHandler TimerEnded;
         public event EventHandler<long> Tick;
 
-        public TextViewCountdownTimer(long millisInFuture)
-            : base (millisInFuture, 1000)
+        public CountdownTimerImpl(long millisInFuture, long countdownInterval)
+            : base (millisInFuture, countdownInterval)
         {
         }
 

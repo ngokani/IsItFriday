@@ -43,7 +43,7 @@ namespace IsItFriday
         private bool _timerFragmentAddedToBackStack;
         private Vibrator _vibrator;
         private CustomLinearLayout _rootView;
-        private MidnightTimer _midnightTimer;
+        private CountdownTimerImpl _midnightTimer;
         private SensorManager _sensorManager;
         private Sensor _accelerometer;
 
@@ -101,11 +101,11 @@ namespace IsItFriday
         protected override void OnResume()
         {
             base.OnResume();
-            CreateMidnightTimerIfNeeded();
+            CreateAndStartMidnightTimerIfNeeded();
 
             if (DateTime.Today.DayOfWeek == DayOfWeek.Friday)
             {
-                MidnightTimer newTimer = new MidnightTimer(10000);
+                CountdownTimerImpl newTimer = new CountdownTimerImpl(10000, 10000);
                 newTimer.TimerEnded += (s, e) =>
                 {
                     CreateNotification();
@@ -186,8 +186,8 @@ namespace IsItFriday
                 .SetSmallIcon(Resource.Drawable.ic_stat_iif)
                 .SetAutoCancel(true)
                 .SetContentIntent(pendingIntent)
-                .SetContentTitle("It's Friday Friday Friday....")
-                .SetContentText("Today is Friday! Tap here for a treat")
+                .SetContentTitle(Resources.GetString(Resource.String.fridayNotificationTitle))
+                .SetContentText(Resources.GetString(Resource.String.fridayNotificationContent))
                 .SetPriority(NotificationCompat.PriorityDefault);
 
             var notificationManager = NotificationManagerCompat.From(this);
@@ -239,12 +239,12 @@ namespace IsItFriday
         /// <summary>
         /// If it's Thursday or Friday, we need to notify ourselves when we get to midnight
         /// </summary>
-        private void CreateMidnightTimerIfNeeded()
+        private void CreateAndStartMidnightTimerIfNeeded()
         {
             if (IsThursdayOrFriday && _midnightTimer == null)
             {
                 long timeToTomorrow = (long)(DateTime.Today.AddDays(1) - DateTime.Now).TotalMilliseconds;
-                _midnightTimer = new MidnightTimer(timeToTomorrow);
+                _midnightTimer = new CountdownTimerImpl(timeToTomorrow, timeToTomorrow);
                 _midnightTimer.TimerEnded += CountdownTimer_TimerEnded;
                 _midnightTimer.Start();
             }
@@ -257,7 +257,7 @@ namespace IsItFriday
 
             // Timer may have ended, but today could be Friday.
             // May need to start another timer.
-            CreateMidnightTimerIfNeeded();
+            CreateAndStartMidnightTimerIfNeeded();
 
             MidnightTimerEnded?.Invoke(sender, e);
         }

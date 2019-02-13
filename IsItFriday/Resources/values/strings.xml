@@ -1,9 +1,21 @@
 <resources>
-    <string name="app_name">Is It Friday</string>
-    <string name="yes">Yes</string>
-    <string name="no">No</string>
-    <string name="itsFridayToast">Woohoo! It\'s Friday!</string>
-    <string name="itsNotFridayToast">Still not Friday...</string>
-    <string name="channelName">Friday Notifications</string>
-    <string name="channelDescription">Friday Notification</string>
+  <string name="app_name">Is It Friday</string>
+  <string name="yes">Yes</string>
+  <string name="no">No</string>
+  <string name="itsFridayToast">Woohoo! It\'s Friday!</string>
+  <string name="itsNotFridayToast">Still not Friday...</string>
+  <string name="channelName">Friday Notifications</string>
+  <string name="channelDescription">Friday Notification</string>
+  <string name="day">Day</string>
+  <string name="days">Days</string>
+  <string name="hour">Hour</string>
+  <string name="hours">Hours</string>
+  <string name="minute">Minute</string>
+  <string name="minutes">Minutes</string>
+  <string name="second">Second</string>
+  <string name="seconds">Seconds</string>
+  <string name="fridayNotificationTitle">It\'s Friday Friday Friday....</string>
+  <string name="fridayNotificationContent">Today is Friday! Tap here for a treat</string>
+  <string name="untilFriday">Until Friday</string>
+  <string name="untilFridayEnds">Until Friday Ends</string>
 </resources>
