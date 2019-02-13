@@ -37,9 +37,10 @@ namespace IsItFriday
         private int _shakeCount = 0;
         #endregion ISensorEventListener2 global variables
 
-        private static readonly int NOTIFICATION_ID = 7561;
-        private static readonly string NOTIFICATION_CHANNEL_ID = "friday_notification";
+        private const int NOTIFICATION_ID = 7561;
+        private const string NOTIFICATION_CHANNEL_ID = "friday_notification";
 
+        private bool _timerFragmentAddedToBackStack;
         private Vibrator _vibrator;
         private CustomLinearLayout _rootView;
         private MidnightTimer _midnightTimer;
@@ -126,9 +127,10 @@ namespace IsItFriday
             if (e.Event.ActionMasked == MotionEventActions.Up)
             {
                 SupportFragmentManager.PopBackStack(nameof(VisualTimerFragment), Android.Support.V4.App.FragmentManager.PopBackStackInclusive);
+                _timerFragmentAddedToBackStack = false;
                 e.Handled = false;
             }
-            else
+            else if (!_timerFragmentAddedToBackStack)
             {
                 FragmentTransaction transaction = SupportFragmentManager.BeginTransaction();
                 transaction.Replace(Resource.Id.FragmentContainer, new VisualTimerFragment());
@@ -136,6 +138,7 @@ namespace IsItFriday
                 transaction.Commit();
                 Vibrate();
                 e.Handled = true;
+                _timerFragmentAddedToBackStack = true;
             }
         }
 

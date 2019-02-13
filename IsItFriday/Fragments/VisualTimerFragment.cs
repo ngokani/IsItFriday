@@ -4,6 +4,8 @@ using Android.OS;
 using Android.Support.V4.App;
 using Android.Views;
 using Android.Widget;
+using IsItFriday.Tools;
+using System;
 
 namespace IsItFriday.Fragments
 {
@@ -12,6 +14,7 @@ namespace IsItFriday.Fragments
         private MainActivity _mainActivity;
         private RelativeLayout _mainLayout;
         private TextView _tickingTextView;
+        private TextViewCountdownTimer _countdownTimer;
 
         public override void OnCreate(Bundle savedInstanceState)
         {
@@ -23,8 +26,12 @@ namespace IsItFriday.Fragments
             _tickingTextView = new TextView(Context);
             _mainLayout.AddView(_tickingTextView);
 
-            _tickingTextView.Text = "hello world";
+            if (_tickingTextView.LayoutParameters is RelativeLayout.LayoutParams textViewLayoutParams)
+            {
+                textViewLayoutParams.AddRule(LayoutRules.CenterInParent);
+            }
 
+            _tickingTextView.Text = "hello world";
             _tickingTextView.SetTextSize(Android.Util.ComplexUnitType.Sp, 20);
         }
 
@@ -48,6 +55,15 @@ namespace IsItFriday.Fragments
                 SetColorMode(_mainActivity.InDarkMode);
                 _mainActivity.InDarkModeChanged += Activity_InDarkModeChanged;
             }
+
+            CreateTimerIfNeeded();
+            _countdownTimer.Tick += Timer_Tick;
+            _countdownTimer.Start();
+        }
+
+        private void Timer_Tick(object sender, long millisToFriday)
+        {
+            _tickingTextView.Text = TimeSpan.FromMilliseconds(millisToFriday).ToString(@"hh\:mm\:ss");
         }
 
         public override void OnPause()
@@ -56,6 +72,10 @@ namespace IsItFriday.Fragments
             {
                 _mainActivity.InDarkModeChanged -= Activity_InDarkModeChanged;
             }
+
+            _countdownTimer?.Cancel();
+            _countdownTimer.Tick -= Timer_Tick;
+            _countdownTimer = null;
 
             base.OnPause();
         }
@@ -70,6 +90,26 @@ namespace IsItFriday.Fragments
             {
 
             }
+        }
+
+        private void CreateTimerIfNeeded()
+        {
+            if (_countdownTimer != null)
+                return;
+
+            int daysToFriday = 0;
+            if (DateTime.Today.DayOfWeek == DayOfWeek.Saturday)
+            {
+                daysToFriday = 7;
+            }
+            else
+            {
+                daysToFriday = DateTime.Today.DayOfWeek - DayOfWeek.Friday;
+            }
+
+            long timeToFriday = (long)(DateTime.Today.AddDays(daysToFriday) - DateTime.Now).TotalMilliseconds;
+
+            _countdownTimer = new TextViewCountdownTimer(timeToFriday);
         }
 
         private void Activity_InDarkModeChanged(object sender, bool inDarkMode)
