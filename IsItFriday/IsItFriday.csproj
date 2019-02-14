@@ -73,15 +73,17 @@
   <ItemGroup>
     <Compile Include="Fragments\MainFragment.cs" />
     <Compile Include="Fragments\VisualTimerFragment.cs" />
-    <Compile Include="Tools\MidnightTimer.cs" />
+    <Compile Include="Helpers\DisplayHelper.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tools\CountdownTimerImpl.cs" />
+    <Compile Include="Views\CustomLinearLayout.cs" />
   </ItemGroup>
   <ItemGroup>
+    <AndroidAsset Include="Assets\fonts\LiquidCrystal.otf" />
     <None Include="Resources\AboutResources.txt" />
     <None Include="Properties\AndroidManifest.xml" />
-    <None Include="Assets\AboutAssets.txt" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\MainActivity.axml">
@@ -190,6 +192,11 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\MainFragment.axml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\VisualTimerFragment.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
   </ItemGroup>

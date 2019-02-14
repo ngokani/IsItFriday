@@ -14,6 +14,7 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using IsItFriday.Tools;
+using IsItFriday.Views;
 
 namespace IsItFriday.Fragments
 {
@@ -22,10 +23,9 @@ namespace IsItFriday.Fragments
         private string _itsFridayToastMessage;
         private string _itsNotFridayToastMessage;
 
+        private MainActivity _mainActivity;
         private TextView _isItFridayTextView;
         private SwipeRefreshLayout _swipeRefreshLayout;
-
-        public new MainActivity Activity => base.Activity as MainActivity;
 
         public override void OnCreate(Bundle savedInstanceState)
         {
@@ -40,45 +40,38 @@ namespace IsItFriday.Fragments
             View view = inflater.Inflate(Resource.Layout.MainFragment, container, false);
             _swipeRefreshLayout = view.FindViewById<SwipeRefreshLayout>(Resource.Id.SwipeRefreshLayout);
             _isItFridayTextView = view.FindViewById<TextView>(Resource.Id.IsItFridayTextView);
+
             return view;
+        }
+
+        public override void OnAttach(Context context)
+        {
+            base.OnAttach(context);
+            _mainActivity = context as MainActivity;
         }
 
         public override void OnResume()
         {
             base.OnResume();
             UpdateTextView();
-            SetColorMode(Activity.InDarkMode);
 
             _swipeRefreshLayout.Refresh += RefreshLayout_OnRefresh;
-            View.Touch += Parent_Touch;
-            if (Activity != null)
-            {
-                Activity.InDarkModeChanged += Activity_InDarkModeChanged;
-                Activity.MidnightTimerEnded += Activity_MidnightTimerEnded;
-            }
-        }
 
-        private void Parent_Touch(object sender, View.TouchEventArgs e)
-        {
-            switch(e.Event.Action)
+            if (_mainActivity != null)
             {
-                case MotionEventActions.Down:
-                    Activity.CreateAndShowToast("Down down down", ToastLength.Short);
-                    break;
-                case MotionEventActions.Up:
-                    Activity.CreateAndShowToast("Up up up", ToastLength.Short);
-                    e.Handled = false;
-                    break;
+                SetColorMode(_mainActivity.InDarkMode);
+                _mainActivity.InDarkModeChanged += Activity_InDarkModeChanged;
+                _mainActivity.MidnightTimerEnded += Activity_MidnightTimerEnded;
             }
         }
 
         public override void OnPause()
         {
             _swipeRefreshLayout.Refresh -= RefreshLayout_OnRefresh;
-            if (Activity != null)
+            if (_mainActivity != null)
             {
-                Activity.InDarkModeChanged -= Activity_InDarkModeChanged;
-                Activity.MidnightTimerEnded -= Activity_MidnightTimerEnded;
+                _mainActivity.InDarkModeChanged -= Activity_InDarkModeChanged;
+                _mainActivity.MidnightTimerEnded -= Activity_MidnightTimerEnded;
             }
             base.OnPause();
         }
@@ -93,7 +86,7 @@ namespace IsItFriday.Fragments
 
             UpdateTextView();
             
-            Activity.CreateAndShowToast(message, ToastLength.Long);
+            _mainActivity.CreateAndShowToast(message, ToastLength.Long);
         }
 
         private void UpdateTextView()

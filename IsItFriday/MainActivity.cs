@@ -1,15 +1,20 @@
 ﻿using System;
+using System.Threading.Tasks;
+using Android;
 using Android.App;
 using Android.Content;
+using Android.Content.PM;
 using Android.Hardware;
 using Android.OS;
 using Android.Runtime;
 using Android.Support.V4.App;
+using Android.Support.V4.Content;
 using Android.Support.V4.Widget;
 using Android.Views;
 using Android.Widget;
 using IsItFriday.Fragments;
 using IsItFriday.Tools;
+using IsItFriday.Views;
 using FragmentTransaction = Android.Support.V4.App.FragmentTransaction;
 
 namespace IsItFriday
@@ -32,10 +37,13 @@ namespace IsItFriday
         private int _shakeCount = 0;
         #endregion ISensorEventListener2 global variables
 
-        private static readonly int NOTIFICATION_ID = 7561;
-        private static readonly string NOTIFICATION_CHANNEL_ID = "friday_notification";
+        private const int NOTIFICATION_ID = 7561;
+        private const string NOTIFICATION_CHANNEL_ID = "friday_notification";
 
-        private MidnightTimer _midnightTimer;
+        private bool _timerFragmentAddedToBackStack;
+        private Vibrator _vibrator;
+        private CustomLinearLayout _rootView;
+        private CountdownTimerImpl _midnightTimer;
         private SensorManager _sensorManager;
         private Sensor _accelerometer;
 
@@ -64,6 +72,8 @@ namespace IsItFriday
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.MainActivity);
+            _rootView = FindViewById<CustomLinearLayout>(Resource.Id.RootView);
+            _vibrator = GetSystemService(Context.VibratorService) as Vibrator;
 
             ISharedPreferences settings = ApplicationContext.GetSharedPreferences(PackageName, FileCreationMode.Private);
 
@@ -91,11 +101,11 @@ namespace IsItFriday
         protected override void OnResume()
         {
             base.OnResume();
-            CreateMidnightTimerIfNeeded();
+            CreateAndStartMidnightTimerIfNeeded();
 
             if (DateTime.Today.DayOfWeek == DayOfWeek.Friday)
             {
-                MidnightTimer newTimer = new MidnightTimer(10000);
+                CountdownTimerImpl newTimer = new CountdownTimerImpl(10000, 10000);
                 newTimer.TimerEnded += (s, e) =>
                 {
                     CreateNotification();
@@ -109,7 +119,27 @@ namespace IsItFriday
                 _sensorManager.RegisterListener(this, _accelerometer, SensorDelay.Game);
             }
 
-            SupportFragmentManager.BackStackChanged += SupportFragmentManager_BackStackChanged;
+            _rootView.Touch += RootView_Touch;
+        }
+
+        private void RootView_Touch(object sender, View.TouchEventArgs e)
+        {
+            if (e.Event.ActionMasked == MotionEventActions.Up)
+            {
+                SupportFragmentManager.PopBackStack(nameof(VisualTimerFragment), Android.Support.V4.App.FragmentManager.PopBackStackInclusive);
+                _timerFragmentAddedToBackStack = false;
+                e.Handled = false;
+            }
+            else if (!_timerFragmentAddedToBackStack)
+            {
+                FragmentTransaction transaction = SupportFragmentManager.BeginTransaction();
+                transaction.Replace(Resource.Id.FragmentContainer, new VisualTimerFragment());
+                transaction.AddToBackStack(nameof(VisualTimerFragment));
+                transaction.Commit();
+                Vibrate();
+                e.Handled = true;
+                _timerFragmentAddedToBackStack = true;
+            }
         }
 
         protected override void OnPause()
@@ -124,7 +154,6 @@ namespace IsItFriday
             _midnightTimer?.Cancel();
             _midnightTimer = null;
 
-            SupportFragmentManager.BackStackChanged -= SupportFragmentManager_BackStackChanged;
             base.OnPause();
         }
 
@@ -157,8 +186,8 @@ namespace IsItFriday
                 .SetSmallIcon(Resource.Drawable.ic_stat_iif)
                 .SetAutoCancel(true)
                 .SetContentIntent(pendingIntent)
-                .SetContentTitle("It's Friday Friday Friday....")
-                .SetContentText("Today is Friday! Tap here for a treat")
+                .SetContentTitle(Resources.GetString(Resource.String.fridayNotificationTitle))
+                .SetContentText(Resources.GetString(Resource.String.fridayNotificationContent))
                 .SetPriority(NotificationCompat.PriorityDefault);
 
             var notificationManager = NotificationManagerCompat.From(this);
@@ -188,15 +217,34 @@ namespace IsItFriday
 
         private void ToggleDarkMode() => InDarkMode = !InDarkMode;
 
+        private void Vibrate()
+        {
+            if (ContextCompat.CheckSelfPermission(this, Manifest.Permission.Vibrate) != Permission.Granted)
+            {
+                return;
+            }
+
+            if (Android.OS.Build.VERSION.SdkInt >= BuildVersionCodes.O)
+            {
+                _vibrator?.Vibrate(VibrationEffect.CreateOneShot(200, VibrationEffect.DefaultAmplitude));
+            }
+            else
+            {
+#pragma warning disable CS0618 // Type or member is obsolete
+                _vibrator?.Vibrate(200);
+#pragma warning restore CS0618 // Type or member is obsolete
+            }
+        }
+
         /// <summary>
         /// If it's Thursday or Friday, we need to notify ourselves when we get to midnight
         /// </summary>
-        private void CreateMidnightTimerIfNeeded()
+        private void CreateAndStartMidnightTimerIfNeeded()
         {
             if (IsThursdayOrFriday && _midnightTimer == null)
             {
                 long timeToTomorrow = (long)(DateTime.Today.AddDays(1) - DateTime.Now).TotalMilliseconds;
-                _midnightTimer = new MidnightTimer(timeToTomorrow);
+                _midnightTimer = new CountdownTimerImpl(timeToTomorrow, timeToTomorrow);
                 _midnightTimer.TimerEnded += CountdownTimer_TimerEnded;
                 _midnightTimer.Start();
             }
@@ -209,14 +257,9 @@ namespace IsItFriday
 
             // Timer may have ended, but today could be Friday.
             // May need to start another timer.
-            CreateMidnightTimerIfNeeded();
+            CreateAndStartMidnightTimerIfNeeded();
 
             MidnightTimerEnded?.Invoke(sender, e);
-        }
-
-        private void SupportFragmentManager_BackStackChanged(object sender, EventArgs e)
-        {
-            CreateAndShowToast("PANIC! Something changed on the backstack!!", ToastLength.Short);
         }
 
         #region ISensorEventListener2 Implementation
