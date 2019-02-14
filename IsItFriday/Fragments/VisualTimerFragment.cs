@@ -13,7 +13,7 @@ namespace IsItFriday.Fragments
     {
         private MainActivity _mainActivity;
 
-        private LinearLayout _mainLayout;
+        private RelativeLayout _mainLayout;
         private CountdownTimerImpl _countdownTimer;
 
         private TextView _daysTextView;
@@ -38,7 +38,7 @@ namespace IsItFriday.Fragments
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            _mainLayout = (LinearLayout)inflater.Inflate(Resource.Layout.VisualTimerFragment, container, false);
+            _mainLayout = (RelativeLayout)inflater.Inflate(Resource.Layout.VisualTimerFragment, container, false);
 
             _daysTextView = _mainLayout.FindViewById<TextView>(Resource.Id.DaysTextView);
             _hoursTextView = _mainLayout.FindViewById<TextView>(Resource.Id.HoursTextView);
@@ -51,9 +51,17 @@ namespace IsItFriday.Fragments
             _secondsLabel = _mainLayout.FindViewById<TextView>(Resource.Id.SecondsLabel);
 
             _daysTextView.Typeface = _typeface;
+            _hoursTextView.Typeface = _typeface;
+            _minutesTextView.Typeface = _typeface;
+            _secondsTextView.Typeface = _typeface;
+
             _daysLabel.Typeface = _typeface;
+            _hoursLabel.Typeface = _typeface;
+            _minutesLabel.Typeface = _typeface;
+            _secondsLabel.Typeface = _typeface;
 
             _untilFridayLabel = _mainLayout.FindViewById<TextView>(Resource.Id.UntilFridayLabel);
+            _untilFridayLabel.Typeface = _typeface;
 
             return _mainLayout;
         }
@@ -122,6 +130,7 @@ namespace IsItFriday.Fragments
             _hoursTextView.Text = timeSpanToFriday.ToString(@"hh");
             _minutesTextView.Text = timeSpanToFriday.ToString(@"mm");
             _secondsTextView.Text = timeSpanToFriday.ToString(@"ss");
+            _mainActivity.Vibrate();
         }
 
 

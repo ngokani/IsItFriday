@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Android;
 using Android.App;
 using Android.Content;
@@ -9,7 +8,6 @@ using Android.OS;
 using Android.Runtime;
 using Android.Support.V4.App;
 using Android.Support.V4.Content;
-using Android.Support.V4.Widget;
 using Android.Views;
 using Android.Widget;
 using IsItFriday.Fragments;
@@ -77,9 +75,15 @@ namespace IsItFriday
 
             ISharedPreferences settings = ApplicationContext.GetSharedPreferences(PackageName, FileCreationMode.Private);
 
-            // To be remove in the next version
-            InDarkMode = settings.GetBoolean("_inDarkMode", false);
-            InDarkMode = InDarkMode || settings.GetBoolean(nameof(InDarkMode), false);
+            if (settings.Contains(nameof(InDarkMode)))
+            {
+                InDarkMode = settings.GetBoolean(nameof(InDarkMode), false);
+            }
+            else if (settings.Contains(nameof(_inDarkMode))) // To be removed in the next version
+            {
+                InDarkMode = settings.GetBoolean(nameof(_inDarkMode), false);
+            }
+
             CreateNotificationChannel();
         }
 
@@ -94,7 +98,6 @@ namespace IsItFriday
 
             FragmentTransaction transaction = SupportFragmentManager.BeginTransaction();
             transaction.Replace(Resource.Id.FragmentContainer, new MainFragment());
-            transaction.AddToBackStack(null);
             transaction.Commit();
         }
 
@@ -217,7 +220,7 @@ namespace IsItFriday
 
         private void ToggleDarkMode() => InDarkMode = !InDarkMode;
 
-        private void Vibrate()
+        public void Vibrate()
         {
             if (ContextCompat.CheckSelfPermission(this, Manifest.Permission.Vibrate) != Permission.Granted)
             {
@@ -282,7 +285,7 @@ namespace IsItFriday
                 float y = e.Values[1];
                 float z = e.Values[2];
 
-                float speed = System.Math.Abs(x + y + z - _lastX - _lastY - _lastZ) / diffTime * 10000;
+                float speed = Java.Lang.Math.Abs(x + y + z - _lastX - _lastY - _lastZ) / diffTime * 10000;
 
                 if (speed > FORCE_THRESHOLD)
                 {
