@@ -43,7 +43,7 @@ namespace IsItFriday.Views
             {
                 DisplayMetrics displayMetrics = new DisplayMetrics();
                 currentActivity.WindowManager.DefaultDisplay.GetMetrics(displayMetrics);
-                _deltaYThreshold = displayMetrics.HeightPixels * 0.1;
+                _deltaYThreshold = displayMetrics.HeightPixels * 0.08;
             }
         }
 
