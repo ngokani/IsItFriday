@@ -25,7 +25,7 @@ namespace IsItFriday.Fragments
 
         private MainActivity _mainActivity;
         private TextView _isItFridayTextView;
-        private SwipeRefreshLayout _swipeRefreshLayout;
+        private CustomSwipeRefreshLayout _swipeRefreshLayout;
 
         public override void OnCreate(Bundle savedInstanceState)
         {
@@ -38,7 +38,7 @@ namespace IsItFriday.Fragments
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
             View view = inflater.Inflate(Resource.Layout.MainFragment, container, false);
-            _swipeRefreshLayout = view.FindViewById<SwipeRefreshLayout>(Resource.Id.SwipeRefreshLayout);
+            _swipeRefreshLayout = view.FindViewById<CustomSwipeRefreshLayout>(Resource.Id.SwipeRefreshLayout);
             _isItFridayTextView = view.FindViewById<TextView>(Resource.Id.IsItFridayTextView);
 
             return view;

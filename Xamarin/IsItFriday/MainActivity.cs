@@ -40,7 +40,6 @@ namespace IsItFriday
 
         private bool _timerFragmentAddedToBackStack;
         private Vibrator _vibrator;
-        private CustomLinearLayout _rootView;
         private CountdownTimerImpl _midnightTimer;
         private SensorManager _sensorManager;
         private Sensor _accelerometer;
@@ -70,7 +69,6 @@ namespace IsItFriday
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.MainActivity);
-            _rootView = FindViewById<CustomLinearLayout>(Resource.Id.RootView);
             _vibrator = GetSystemService(Context.VibratorService) as Vibrator;
 
             ISharedPreferences settings = ApplicationContext.GetSharedPreferences(PackageName, FileCreationMode.Private);
@@ -121,8 +119,6 @@ namespace IsItFriday
             {
                 _sensorManager.RegisterListener(this, _accelerometer, SensorDelay.Game);
             }
-
-            _rootView.Touch += RootView_Touch;
         }
 
         private void RootView_Touch(object sender, View.TouchEventArgs e)
