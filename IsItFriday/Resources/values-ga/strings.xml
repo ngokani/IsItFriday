@@ -1,8 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<resources>
-  <string name="app_name">An bhfuil sé Dé hAoine</string>
-  <string name="yes">Tá</string>
-  <string name="no">Níl</string>
-  <string name="itsFridayToast">Woohoo! Is Dé hAoine é!</string>
-  <string name="itsNotFridayToast">Ní hamháin Dé hAoine ...</string>
-</resources>

@@ -1,8 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<resources>
-  <string name="app_name">Είναι Παρασκευή</string>
-  <string name="yes">Ναι</string>
-  <string name="no">Όχι</string>
-  <string name="itsFridayToast">Είναι Παρασκευή!</string>
-  <string name="itsNotFridayToast">Ακόμη δεν την Παρασκευή ...</string>
-</resources>

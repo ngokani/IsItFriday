@@ -1,8 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<resources>
-  <string name="app_name">તે શુક્રવાર છે</string>
-  <string name="yes">હા</string>
-  <string name="no">નહીં</string>
-  <string name="itsFridayToast">વૂહુ! શુક્રવાર છે!</string>
-  <string name="itsNotFridayToast">હજી શુક્રવાર નથી ...</string>
-</resources>
