@@ -8,9 +8,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import uk.co.technikhil.isitfriday.R
 import uk.co.technikhil.isitfriday.ui.viewmodels.AnswerViewModel
 
 @Composable
@@ -27,7 +29,7 @@ fun Answer(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = if (answerState) "It's Friday" else "It's not Friday"
+            text = stringResource(id = if (answerState) R.string.yes else R.string.no)
         )
     }
 }
