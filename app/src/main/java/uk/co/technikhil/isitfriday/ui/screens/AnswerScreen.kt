@@ -27,20 +27,23 @@ import uk.co.technikhil.isitfriday.ui.theme.IsItFridayTheme
 import uk.co.technikhil.isitfriday.ui.viewmodels.AnswerViewModel
 
 @Composable
-fun Answer(
+fun AnswerScreen(
     modifier: Modifier = Modifier,
     navHostController: NavHostController = rememberNavController()
 ) {
     val viewModel = viewModel<AnswerViewModel>()
     val answerState by viewModel.answer
 
-    AnswerText(modifier, answerState)
+    AnswerText(modifier, answerState) {
+        navHostController.navigate(route = "timer")
+    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun AnswerText(modifier: Modifier, answerState: Boolean) {
+private fun AnswerText(modifier: Modifier, answerState: Boolean, onLongClick: () -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -48,8 +51,8 @@ private fun AnswerText(modifier: Modifier, answerState: Boolean) {
             .combinedClickable(
                 interactionSource = interactionSource,
                 indication = null,
-                onLongClick = { /*TODO navigate to timer screen*/ }
-            ) { },
+                onLongClick = onLongClick
+            ) { /* onClick do nothing*/ },
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -75,7 +78,7 @@ fun AnswerPreviewLightMode() {
         AnswerText(
             modifier = Modifier,
             answerState = true
-        )
+        ) {}
     }
 }
 
@@ -86,6 +89,6 @@ fun AnswerPreviewDarkMode() {
         AnswerText(
             modifier = Modifier,
             answerState = true
-        )
+        ) {}
     }
 }

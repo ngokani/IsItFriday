@@ -6,7 +6,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import uk.co.technikhil.isitfriday.ui.screens.Answer
+import uk.co.technikhil.isitfriday.ui.screens.AnswerScreen
+import uk.co.technikhil.isitfriday.ui.screens.CountdownScreen
 
 @Composable
 fun AppNavHost(
@@ -20,7 +21,13 @@ fun AppNavHost(
         modifier = modifier
     ) {
         composable("home") {
-            Answer(
+            AnswerScreen(
+                modifier = modifier,
+                navHostController = navController
+            )
+        }
+        composable("timer") {
+            CountdownScreen(
                 modifier = modifier,
                 navHostController = navController
             )
