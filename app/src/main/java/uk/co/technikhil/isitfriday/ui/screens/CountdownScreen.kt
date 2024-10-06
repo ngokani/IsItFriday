@@ -11,13 +11,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 
 @Composable
 fun CountdownScreen(
-    modifier: Modifier = Modifier,
-    navHostController: NavHostController = rememberNavController()
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier

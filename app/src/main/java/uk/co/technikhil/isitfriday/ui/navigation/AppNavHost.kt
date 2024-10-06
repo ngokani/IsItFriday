@@ -22,14 +22,12 @@ fun AppNavHost(
     ) {
         composable("home") {
             AnswerScreen(
-                modifier = modifier,
-                navHostController = navController
+                modifier = modifier
             )
         }
         composable("timer") {
             CountdownScreen(
-                modifier = modifier,
-                navHostController = navController
+                modifier = modifier
             )
         }
     }

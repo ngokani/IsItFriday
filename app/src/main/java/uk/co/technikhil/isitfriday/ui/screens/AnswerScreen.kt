@@ -1,10 +1,7 @@
 package uk.co.technikhil.isitfriday.ui.screens
 
 import android.content.res.Configuration
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,7 +9,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -20,39 +16,27 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import uk.co.technikhil.isitfriday.R
 import uk.co.technikhil.isitfriday.ui.theme.IsItFridayTheme
 import uk.co.technikhil.isitfriday.ui.viewmodels.AnswerViewModel
 
 @Composable
 fun AnswerScreen(
-    modifier: Modifier = Modifier,
-    navHostController: NavHostController = rememberNavController()
+    modifier: Modifier = Modifier
 ) {
     val viewModel = viewModel<AnswerViewModel>()
     val answerState by viewModel.answer
 
-    AnswerText(modifier, answerState) {
-        navHostController.navigate(route = "timer")
-    }
+    AnswerText(modifier, answerState)
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun AnswerText(modifier: Modifier, answerState: Boolean, onLongClick: () -> Unit) {
-    val interactionSource = remember { MutableInteractionSource() }
+private fun AnswerText(modifier: Modifier, answerState: Boolean) {
 
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .combinedClickable(
-                interactionSource = interactionSource,
-                indication = null,
-                onLongClick = onLongClick
-            ) { /* onClick do nothing*/ },
+            .background(MaterialTheme.colorScheme.background),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -78,7 +62,7 @@ fun AnswerPreviewLightMode() {
         AnswerText(
             modifier = Modifier,
             answerState = true
-        ) {}
+        )
     }
 }
 
@@ -89,6 +73,6 @@ fun AnswerPreviewDarkMode() {
         AnswerText(
             modifier = Modifier,
             answerState = true
-        ) {}
+        )
     }
 }
