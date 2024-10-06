@@ -8,15 +8,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import uk.co.technikhil.isitfriday.ui.usecases.IsTodayFridayUseCase
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
-import java.util.Calendar
 
 class AnswerViewModel : ViewModel() {
     private val _answer = mutableStateOf(false)
     val answer: State<Boolean> = _answer
+
+    private val isTodayFriday = IsTodayFridayUseCase()
 
     init {
         refreshAnswer()
@@ -25,13 +27,13 @@ class AnswerViewModel : ViewModel() {
 
     fun onEvent(event: AnswerEvent) {
         when (event) {
-            is AnswerEvent.Refresh -> refreshAnswer()
+            AnswerEvent.ViewCreated -> TODO()
+            AnswerEvent.Refresh -> refreshAnswer()
         }
     }
 
     private fun refreshAnswer() {
-        val dayOfWeek = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
-        _answer.value = dayOfWeek == Calendar.FRIDAY
+        _answer.value = isTodayFriday()
     }
 
     private fun startRefreshTimer() {
@@ -56,5 +58,6 @@ class AnswerViewModel : ViewModel() {
 }
 
 sealed interface AnswerEvent {
+    data object ViewCreated : AnswerEvent
     data object Refresh : AnswerEvent
 }
