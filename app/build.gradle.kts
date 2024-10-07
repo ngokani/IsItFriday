@@ -11,8 +11,8 @@ android {
         applicationId = "uk.co.technikhil.IsItFriday"
         minSdk = 24
         targetSdk = 34
-        versionCode = 7
-        versionName = "4.0.0"
+        versionCode = 600001
+        versionName = "4.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
