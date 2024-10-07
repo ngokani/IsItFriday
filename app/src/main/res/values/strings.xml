@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">Is It Friday</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="days_hours_minutes_seconds">%1$s days\n%2$s hours\n%3$s minutes\n%4$s seconds</string>
+</resources>

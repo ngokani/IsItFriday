@@ -1,8 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<resources>
-  <string name="app_name">金曜日ですか</string>
-  <string name="yes">はい</string>
-  <string name="no">いいえ</string>
-  <string name="itsFridayToast">ウーホー！ それは金曜日だ！</string>
-  <string name="itsNotFridayToast">まだ金曜日ではありません...</string>
-</resources>
