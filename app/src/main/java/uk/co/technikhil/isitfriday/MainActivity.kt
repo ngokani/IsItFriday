@@ -10,10 +10,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import dagger.hilt.android.AndroidEntryPoint
 import uk.co.technikhil.isitfriday.ui.navigation.AppNavHost
 import uk.co.technikhil.isitfriday.ui.screens.AppWideGestureOverlay
 import uk.co.technikhil.isitfriday.ui.theme.IsItFridayTheme
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

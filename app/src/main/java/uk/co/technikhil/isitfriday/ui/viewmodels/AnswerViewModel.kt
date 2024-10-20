@@ -4,6 +4,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -13,8 +14,10 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.temporal.ChronoUnit
+import javax.inject.Inject
 
-class AnswerViewModel : ViewModel() {
+@HiltViewModel
+class AnswerViewModel @Inject constructor() : ViewModel() {
     private val _answer = mutableStateOf(false)
     val answer: State<Boolean> = _answer
 

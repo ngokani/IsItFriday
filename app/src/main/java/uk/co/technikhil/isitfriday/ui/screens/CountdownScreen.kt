@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import uk.co.technikhil.isitfriday.R
 import uk.co.technikhil.isitfriday.ui.viewmodels.CountdownViewModel
@@ -22,7 +23,7 @@ import uk.co.technikhil.isitfriday.ui.viewmodels.TimeUntil
 fun CountdownScreen(
     modifier: Modifier = Modifier
 ) {
-    val viewModel = viewModel<CountdownViewModel>()
+    val viewModel: CountdownViewModel = hiltViewModel()
     val countdownState by viewModel.countdown
 
     CountdownText(modifier, countdownState)
