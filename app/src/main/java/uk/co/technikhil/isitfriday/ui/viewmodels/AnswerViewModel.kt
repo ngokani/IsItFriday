@@ -17,26 +17,26 @@ import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
 @HiltViewModel
-class AnswerViewModel @Inject constructor() : ViewModel() {
+class AnswerViewModel @Inject constructor(
+    private val isTodayFridayUseCase: IsTodayFridayUseCase
+) : ViewModel() {
     private val _answer = mutableStateOf(false)
     val answer: State<Boolean> = _answer
 
-    private val isTodayFriday = IsTodayFridayUseCase()
+    fun onIntent(event: AnswerViewIntent) {
+        when (event) {
+            AnswerViewIntent.ViewCreated -> onViewCreated()
+            AnswerViewIntent.Refresh -> refreshAnswer()
+        }
+    }
 
-    init {
+    private fun onViewCreated() {
         refreshAnswer()
         startRefreshTimer()
     }
 
-    fun onEvent(event: AnswerEvent) {
-        when (event) {
-            AnswerEvent.ViewCreated -> TODO()
-            AnswerEvent.Refresh -> refreshAnswer()
-        }
-    }
-
     private fun refreshAnswer() {
-        _answer.value = isTodayFriday()
+        _answer.value = isTodayFridayUseCase()
     }
 
     private fun startRefreshTimer() {
@@ -60,7 +60,7 @@ class AnswerViewModel @Inject constructor() : ViewModel() {
     }
 }
 
-sealed interface AnswerEvent {
-    data object ViewCreated : AnswerEvent
-    data object Refresh : AnswerEvent
+sealed interface AnswerViewIntent {
+    data object ViewCreated : AnswerViewIntent
+    data object Refresh : AnswerViewIntent
 }
