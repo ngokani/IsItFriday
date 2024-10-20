@@ -4,13 +4,16 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.LocalTime
+import javax.inject.Inject
 
-class CountdownViewModel : ViewModel() {
+@HiltViewModel
+class CountdownViewModel @Inject constructor() : ViewModel() {
     private val _countdown = mutableStateOf(TimeUntil(0, 0, 0, 0))
     val countdown: State<TimeUntil> = _countdown
 
