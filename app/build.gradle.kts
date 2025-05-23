@@ -7,12 +7,12 @@ plugins {
 
 android {
     namespace = "uk.co.technikhil.isitfriday"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "uk.co.technikhil.IsItFriday"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 600001
         versionName = "4.0.1"
 
@@ -43,7 +43,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.15"
     }
     packaging {
         resources {
