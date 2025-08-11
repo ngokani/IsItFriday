@@ -16,13 +16,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import uk.co.technikhil.isitfriday.R
+import uk.co.technikhil.isitfriday.ui.viewmodels.CountdownDuration
 import uk.co.technikhil.isitfriday.ui.viewmodels.CountdownViewModel
-import uk.co.technikhil.isitfriday.ui.viewmodels.TimeUntil
 
 @Composable
 fun CountdownScreen(
@@ -39,7 +38,7 @@ fun CountdownScreen(
             .then(modifier)
     ) {
         Spacer(Modifier.weight(1f))
-        CountdownText(uiState.timeUntil)
+        CountdownText(uiState.countdownDuration)
         UntilText(uiState.isItFriday)
         Spacer(Modifier.weight(1f))
     }
@@ -62,14 +61,14 @@ fun UntilText(isItFriday: Boolean) {
 }
 
 @Composable
-private fun CountdownText(countdownState: TimeUntil) {
+private fun CountdownText(duration: CountdownDuration) {
     Column(
         modifier = Modifier
             .background(MaterialTheme.colorScheme.background),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        with(countdownState) {
+        with(duration) {
             Text(
                 text = stringResource(
                     R.string.days_hours_minutes_seconds,
