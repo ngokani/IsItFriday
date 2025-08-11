@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
+import uk.co.technikhil.isitfriday.ui.usecases.IsTodayFridayUseCase
 import java.time.DayOfWeek
 import java.time.Duration
 import java.time.LocalDateTime
@@ -18,7 +19,9 @@ import java.time.temporal.TemporalAdjusters
 import javax.inject.Inject
 
 @HiltViewModel
-class CountdownViewModel @Inject constructor() : ViewModel() {
+class CountdownViewModel @Inject constructor(
+    private val isTodayFridayUseCase: IsTodayFridayUseCase
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CountdownUiState())
     val uiState: StateFlow<CountdownUiState> = _uiState.asStateFlow()
@@ -37,16 +40,17 @@ class CountdownViewModel @Inject constructor() : ViewModel() {
         _uiState.update {
             it.copy(
                 countdownDuration = CountdownDuration.from(duration),
-                isItFriday = now.dayOfWeek == DayOfWeek.FRIDAY
+                isItFriday = isTodayFridayUseCase()
             )
         }
     }
 
-    private fun getTargetDateTime(now: LocalDateTime): LocalDateTime {
-        return if (now.dayOfWeek == DayOfWeek.FRIDAY) {
+    private fun getTargetDateTime(now: LocalDateTime): LocalDateTime = when {
+        isTodayFridayUseCase() -> {
             // If it is Friday, countdown to the end of the day (start of the next day).
             now.toLocalDate().plusDays(1).atStartOfDay()
-        } else {
+        }
+        else -> {
             // Otherwise, countdown to the start of the next Friday.
             now.toLocalDate().with(TemporalAdjusters.next(DayOfWeek.FRIDAY)).atStartOfDay()
         }
