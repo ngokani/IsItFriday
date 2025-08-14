@@ -35,7 +35,7 @@ class AnswerViewModel @Inject constructor(
     }
 
     private fun onViewCreated() {
-        onRefresh() // Initial refresh
+        onRefresh()
         startDailyRefreshTimer()
     }
 
@@ -62,7 +62,3 @@ class AnswerViewModel @Inject constructor(
         }
 }
 
-sealed interface AnswerViewIntent {
-    data object ViewCreated : AnswerViewIntent
-    data object Refresh : AnswerViewIntent
-}

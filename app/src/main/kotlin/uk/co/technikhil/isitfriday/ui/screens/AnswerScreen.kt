@@ -31,7 +31,7 @@ fun AnswerScreen(
     val viewModel: AnswerViewModel = hiltViewModel()
     val answerState by viewModel.answer
 
-    LaunchedEffect(key1 = Unit) {
+    LaunchedEffect(Unit) {
         viewModel.onIntent(AnswerViewIntent.ViewCreated)
     }
 
