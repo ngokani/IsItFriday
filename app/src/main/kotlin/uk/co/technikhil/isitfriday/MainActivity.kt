@@ -1,6 +1,7 @@
 package uk.co.technikhil.isitfriday
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -26,7 +27,8 @@ class MainActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     AppWideGestureOverlay(
                         Modifier.padding(innerPadding),
-                        navHostController = navController
+                        navHostController = navController,
+                        { Toast.makeText(this, "tapped", Toast.LENGTH_SHORT).show()}
                     )
                     AppNavHost(
                         modifier = Modifier.padding(innerPadding),
