@@ -3,6 +3,7 @@ package uk.co.technikhil.isitfriday.ui.screens
 import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -11,6 +12,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -20,13 +24,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import uk.co.technikhil.isitfriday.R
+import uk.co.technikhil.isitfriday.ui.components.Confetti
 import uk.co.technikhil.isitfriday.ui.theme.IsItFridayTheme
 import uk.co.technikhil.isitfriday.ui.viewmodels.AnswerViewIntent
 import uk.co.technikhil.isitfriday.ui.viewmodels.AnswerViewModel
 
 @Composable
 fun AnswerScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    tapTrigger: Int = 0
 ) {
     val viewModel: AnswerViewModel = hiltViewModel()
     val answerState by viewModel.answer
@@ -35,31 +41,46 @@ fun AnswerScreen(
         viewModel.onIntent(AnswerViewIntent.ViewCreated)
     }
 
-    AnswerText(modifier, answerState)
+    AnswerText(modifier, answerState, tapTrigger)
 }
 
 @Composable
-private fun AnswerText(modifier: Modifier, answerState: Boolean) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = stringResource(
-                id =
-                if (answerState) {
-                    R.string.yes
-                } else {
-                    R.string.no
+private fun AnswerText(modifier: Modifier, answerState: Boolean, tapTrigger: Int) {
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = stringResource(
+                    id =
+                    if (answerState) {
+                        R.string.yes
+                    } else {
+                        R.string.no
+                    }
+                ),
+                style = TextStyle(fontSize = 72.sp),
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+        
+        if (answerState) {
+            val initialTrigger = remember { 1 }
+            var combinedTrigger by remember { mutableIntStateOf(initialTrigger) }
+            
+            LaunchedEffect(tapTrigger) {
+                if (tapTrigger > 0) {
+                    combinedTrigger++
                 }
-            ),
-            style = TextStyle(fontSize = 72.sp),
-            color = MaterialTheme.colorScheme.primary
-        )
+            }
+            
+            Confetti(trigger = combinedTrigger)
+        }
     }
 }
 
@@ -69,7 +90,8 @@ fun AnswerPreviewLightMode() {
     IsItFridayTheme {
         AnswerText(
             modifier = Modifier,
-            answerState = true
+            answerState = true,
+            tapTrigger = 0
         )
     }
 }
@@ -80,7 +102,8 @@ fun AnswerPreviewDarkMode() {
     IsItFridayTheme {
         AnswerText(
             modifier = Modifier,
-            answerState = true
+            answerState = true,
+            tapTrigger = 0
         )
     }
 }

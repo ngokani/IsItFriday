@@ -1,13 +1,16 @@
 package uk.co.technikhil.isitfriday
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -23,16 +26,18 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController: NavHostController = rememberNavController()
+            var tapTrigger by remember { mutableIntStateOf(0) }
             IsItFridayTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     AppWideGestureOverlay(
                         Modifier.padding(innerPadding),
                         navHostController = navController,
-                        { Toast.makeText(this, "tapped", Toast.LENGTH_SHORT).show()}
+                        { tapTrigger++ }
                     )
                     AppNavHost(
                         modifier = Modifier.padding(innerPadding),
                         navController = navController,
+                        tapTrigger = tapTrigger
                     )
                 }
             }

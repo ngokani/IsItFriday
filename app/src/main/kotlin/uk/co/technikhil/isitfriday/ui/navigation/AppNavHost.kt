@@ -14,6 +14,7 @@ fun AppNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     startDestination: String = "home",
+    tapTrigger: Int = 0
 ) {
     NavHost(
         navController = navController,
@@ -22,7 +23,8 @@ fun AppNavHost(
     ) {
         composable("home") {
             AnswerScreen(
-                modifier = modifier
+                modifier = modifier,
+                tapTrigger = tapTrigger
             )
         }
         composable("timer") {
