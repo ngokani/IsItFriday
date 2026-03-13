@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,7 +33,7 @@ import uk.co.technikhil.isitfriday.ui.viewmodels.AnswerViewModel
 @Composable
 fun AnswerScreen(
     modifier: Modifier = Modifier,
-    tapTrigger: Int = 0
+    tapOrigin: Offset? = null
 ) {
     val viewModel: AnswerViewModel = hiltViewModel()
     val answerState by viewModel.answer
@@ -41,11 +42,11 @@ fun AnswerScreen(
         viewModel.onIntent(AnswerViewIntent.ViewCreated)
     }
 
-    AnswerText(modifier, answerState, tapTrigger)
+    AnswerText(modifier, answerState, tapOrigin)
 }
 
 @Composable
-private fun AnswerText(modifier: Modifier, answerState: Boolean, tapTrigger: Int) {
+private fun AnswerText(modifier: Modifier, answerState: Boolean, tapOrigin: Offset?) {
     Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -73,13 +74,13 @@ private fun AnswerText(modifier: Modifier, answerState: Boolean, tapTrigger: Int
             val initialTrigger = remember { 1 }
             var combinedTrigger by remember { mutableIntStateOf(initialTrigger) }
             
-            LaunchedEffect(tapTrigger) {
-                if (tapTrigger > 0) {
+            LaunchedEffect(tapOrigin) {
+                if (tapOrigin != null) {
                     combinedTrigger++
                 }
             }
             
-            Confetti(trigger = combinedTrigger)
+            Confetti(trigger = combinedTrigger, origin = tapOrigin)
         }
     }
 }
@@ -91,7 +92,7 @@ fun AnswerPreviewLightMode() {
         AnswerText(
             modifier = Modifier,
             answerState = true,
-            tapTrigger = 0
+            tapOrigin = null
         )
     }
 }
@@ -103,7 +104,7 @@ fun AnswerPreviewDarkMode() {
         AnswerText(
             modifier = Modifier,
             answerState = true,
-            tapTrigger = 0
+            tapOrigin = null
         )
     }
 }

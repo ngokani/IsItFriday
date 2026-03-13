@@ -2,6 +2,7 @@ package uk.co.technikhil.isitfriday.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -14,7 +15,7 @@ fun AppNavHost(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     startDestination: String = "home",
-    tapTrigger: Int = 0
+    tapOrigin: Offset? = null
 ) {
     NavHost(
         navController = navController,
@@ -24,7 +25,7 @@ fun AppNavHost(
         composable("home") {
             AnswerScreen(
                 modifier = modifier,
-                tapTrigger = tapTrigger
+                tapOrigin = tapOrigin
             )
         }
         composable("timer") {

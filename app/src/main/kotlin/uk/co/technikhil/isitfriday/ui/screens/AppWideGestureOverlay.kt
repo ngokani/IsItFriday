@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
@@ -20,7 +21,7 @@ import androidx.navigation.compose.rememberNavController
 fun AppWideGestureOverlay(
     modifier: Modifier = Modifier,
     navHostController: NavHostController = rememberNavController(),
-    onTap: () -> Unit = { } // Added onTap callback
+    onTap: (Offset) -> Unit = { } // Added onTap callback with Offset
 ) {
     Box(
         modifier = modifier
@@ -34,7 +35,7 @@ fun AppWideGestureOverlay(
 
 private suspend fun PointerInputScope.onGesture(
     navHostController: NavHostController,
-    onTap: () -> Unit// Added onTap callback parameter
+    onTap: (Offset) -> Unit// Added onTap callback parameter
 ) {
     awaitEachGesture {
         // Wait for an unconsumed down event.
@@ -60,7 +61,7 @@ private suspend fun PointerInputScope.onGesture(
             // `awaitLongPressOrCancellation` is consumed by it.
             // We'll treat this as a tap. Consume the initial `down` event.
             down.consume()
-            onTap() // Execute the tap action
+            onTap(down.position) // Execute the tap action with the coordinates
         }
 
         // The original code had a `waitForUpOrCancellation` and `popBackStack()` here.

@@ -26,7 +26,7 @@ data class Particle(
 )
 
 @Composable
-fun Confetti(trigger: Int, modifier: Modifier = Modifier) {
+fun Confetti(trigger: Int, modifier: Modifier = Modifier, origin: Offset? = null) {
     val configuration = LocalConfiguration.current
     val density = LocalDensity.current
 
@@ -38,14 +38,20 @@ fun Confetti(trigger: Int, modifier: Modifier = Modifier) {
 
     var frameTimestamp by remember { mutableLongStateOf(0L) }
 
-    LaunchedEffect(trigger) {
+    LaunchedEffect(trigger, origin) {
         if (trigger == 0) return@LaunchedEffect
+        
+        val startX = origin?.x ?: (screenWidthPx / 2f)
+        val startY = origin?.y ?: (screenHeightPx / 2f)
+        
         val newParticles = List(75) {
+            val angle = Random.nextFloat() * 2 * Math.PI
+            val speed = Random.nextFloat() * 800f + 200f
             Particle(
-                x = Random.nextFloat() * screenWidthPx,
-                y = -50f - Random.nextFloat() * 100f,
-                vx = Random.nextFloat() * 400f - 200f,
-                vy = Random.nextFloat() * 600f + 400f,
+                x = startX,
+                y = startY,
+                vx = (Math.cos(angle) * speed).toFloat(),
+                vy = (Math.sin(angle) * speed).toFloat() - 400f, // Initial upward burst
                 rotation = Random.nextFloat() * 360f,
                 rotationSpeed = Random.nextFloat() * 400f - 200f,
                 color = colors.random(),
@@ -67,6 +73,7 @@ fun Confetti(trigger: Int, modifier: Modifier = Modifier) {
                     val p = iterator.next()
                     p.x += p.vx * dt
                     p.y += p.vy * dt
+                    p.vy += 600f * dt // Add gravity
                     p.rotation += p.rotationSpeed * dt
 
                     if (p.y > screenHeightPx + p.size) {
